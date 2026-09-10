@@ -2,724 +2,392 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="DesiPay — Hyperlocal Quick-Commerce & Smart Dukandaar Khata Platform">
-  <title>DesiPay — 10-Min Campus Store & Smart Vyapar Khata</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="theme-color" content="#080d1a">
+  <meta name="description" content="DesiPay — Mobile-First 10-Min Campus Quick Commerce & Dukandaar Smart Khata">
+  <title>DesiPay — Mobile Quick Commerce & Smart Khata</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&family=Noto+Sans+Devanagari:wght@400;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body class="mode-campus">
-  <!-- Ambient Floating Gradient Orbs -->
-  <div class="ambient-orb orb-1"></div>
-  <div class="ambient-orb orb-2"></div>
-  <div class="ambient-orb orb-3"></div>
-
-  <!-- Unified Top Navigation Bar (Blinkit / Swiggy Market Standard) -->
-  <header class="app-header">
-    <div class="header-left">
-      <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation">☰</button>
-      <div class="brand-logo" id="brandLogo">
-        <div class="brand-icon">⚡</div>
-        <div class="brand-text-group">
-          <span class="brand-name">DesiPay</span>
-          <span class="brand-tagline">10-MIN QUICK COMMERCE & KHATA</span>
-        </div>
+  <!-- Desktop Ambient Canvas Background (Only visible on wide desktop screens) -->
+  <div class="desktop-backdrop">
+    <div class="desktop-hero-info">
+      <div class="dhi-badge">📱 MOBILE-FIRST NATIVE APP EXPERIENCE</div>
+      <h1>DesiPay Hyperlocal</h1>
+      <p>Blinkit / Swiggy 10-Min Campus Store + BharatPe / Khatabook Dukandaar POS.</p>
+      <div class="dhi-pills">
+        <span>⚡ 8-Min Hostel Delivery</span>
+        <span>🔊 4G IoT Soundbox Voice</span>
+        <span>📲 1-Click WhatsApp Khata</span>
+        <span>🛡️ RS256 JWT Security</span>
       </div>
-
-      <!-- Location & Delivery Speed Picker (Blinkit Standard) -->
-      <div class="location-pill" id="locationPickerBtn" title="Click to change campus delivery location">
-        <div class="loc-flash">⚡</div>
-        <div class="loc-info">
-          <span class="loc-time">Delivery in 8 MINS</span>
-          <span class="loc-address" id="currentLocationText">North Campus Hostel Block 4 ▾</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Center: Search Bar with Trending Quick Chips -->
-    <div class="header-center">
-      <div class="search-container">
-        <span class="search-icon">🔍</span>
-        <input type="text" id="globalSearchInput" placeholder="Search 'Maggi, Red Bull, Amul butter, Registers'...">
-        <span class="search-shortcut">⌘K</span>
-      </div>
-    </div>
-
-    <!-- Right: Mode Switcher, Security Pill, Cart Trigger, Profile -->
-    <div class="header-right">
-      <!-- Dual-Persona Segmented Switcher (The Hero Feature!) -->
-      <div class="mode-switcher-pill" id="modeSwitcher">
-        <button type="button" class="mode-btn active" id="modeBtnCampus" data-mode="campus" title="Switch to Student Quick-Commerce Store">
-          <span class="mode-emoji">🎓</span>
-          <span class="mode-label">Campus Store</span>
-        </button>
-        <button type="button" class="mode-btn" id="modeBtnDukandaar" data-mode="dukandaar" title="Switch to Shopkeeper / Dukandaar POS">
-          <span class="mode-emoji">🏪</span>
-          <span class="mode-label">Vyapar POS</span>
-        </button>
-      </div>
-
-      <!-- JWT Security Status Pill -->
-      <div class="jwt-pill" id="topbarJwtPill" title="Click to open RS256 JWT Security Cockpit">
-        <span class="jwt-pulse-dot" id="jwtPulseDot"></span>
-        <span class="jwt-pill-text" id="topbarJwtText">JWT Inactive</span>
-      </div>
-
-      <!-- Cart Button (Blinkit Green Pill) -->
-      <button class="header-cart-btn" id="headerCartBtn" title="View Cart">
-        <span class="cart-icon">🛒</span>
-        <div class="cart-btn-info">
-          <span class="cart-btn-count" id="headerCartCount">0 items</span>
-          <span class="cart-btn-total" id="headerCartTotal">₹0</span>
-        </div>
-      </button>
-
-      <!-- User Profile / Login Button -->
-      <div class="user-chip" id="headerUserChip">
-        <button class="btn-user-action" id="headerAuthBtn">
-          <span>Sign In</span>
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <!-- Location Selection Modal -->
-  <div class="modal-overlay" id="locationModal" style="display:none">
-    <div class="modal glass-card">
-      <div class="modal-header">
-        <h3>Select Campus Delivery Location</h3>
-        <button class="modal-close" data-close="locationModal">×</button>
-      </div>
-      <div class="location-list">
-        <button class="location-item active" data-loc="North Campus Hostel Block 4">
-          <span class="loc-item-icon">🏢</span>
-          <div class="loc-item-text">
-            <strong>North Campus Hostel Block 4</strong>
-            <small>Common Room / Gate 1 • 8 Mins Express</small>
-          </div>
-        </button>
-        <button class="location-item" data-loc="Boys Hostel 3 (Room 214)">
-          <span class="loc-item-icon">🛏️</span>
-          <div class="loc-item-text">
-            <strong>Boys Hostel 3 (Room 214)</strong>
-            <small>Direct Doorstep Delivery • 10 Mins</small>
-          </div>
-        </button>
-        <button class="location-item" data-loc="Library & Reading Hall Gate">
-          <span class="loc-item-icon">📚</span>
-          <div class="loc-item-text">
-            <strong>Library & Reading Hall Gate</strong>
-            <small>Silent pickup point • 7 Mins</small>
-          </div>
-        </button>
-        <button class="location-item" data-loc="Om Kirana Store Counter (Pick up)">
-          <span class="loc-item-icon">🏪</span>
-          <div class="loc-item-text">
-            <strong>Om Kirana Store Counter</strong>
-            <small>Instant Counter Pickup • 0 Mins</small>
-          </div>
-        </button>
-      </div>
+      <small>View on your smartphone or use the mobile preview frame right here 👉</small>
     </div>
   </div>
 
-  <!-- Sidebar Navigation Drawer (Collapsible) -->
-  <nav class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="logo">
-        <div class="logo-badge-icon">⚡</div>
-        <div class="logo-content">
-          <span class="logo-text">DesiPay</span>
-          <span class="logo-sub">FINTECH & COMMERCE</span>
-        </div>
-      </div>
-      <button class="sidebar-close-btn" id="sidebarCloseBtn">✕</button>
-    </div>
-
-    <div class="sidebar-mode-indicator" id="sidebarModeIndicator">
-      <span id="sbModeEmoji">🎓</span>
-      <span id="sbModeLabel">Campus Student Mode</span>
-    </div>
-
-    <ul class="nav-list" id="navList">
-      <li class="nav-item active" data-page="home">
-        <span class="nav-icon">🛍️</span>
-        <span class="nav-label">Storefront / POS</span>
-      </li>
-      <li class="nav-item" data-page="payments">
-        <span class="nav-icon">💳</span>
-        <span class="nav-label">UPI Payments</span>
-      </li>
-      <li class="nav-item" data-page="khata">
-        <span class="nav-icon">📒</span>
-        <span class="nav-label">Khata Ledger</span>
-      </li>
-      <li class="nav-item" data-page="soundbox">
-        <span class="nav-icon">🔊</span>
-        <span class="nav-label">Smart Soundbox</span>
-      </li>
-      <li class="nav-item" data-page="qrstand">
-        <span class="nav-icon">🖨️</span>
-        <span class="nav-label">Counter QR Standee</span>
-      </li>
-      <li class="nav-item" data-page="inventory">
-        <span class="nav-icon">📦</span>
-        <span class="nav-label">Stock & Catalog</span>
-      </li>
-      <li class="nav-item" data-page="notifications">
-        <span class="nav-icon">🔔</span>
-        <span class="nav-label">Alerts</span>
-        <span class="badge" id="notifBadge" style="display:none">0</span>
-      </li>
-    </ul>
-
-    <div class="sidebar-footer">
-      <div class="user-info" id="userInfo" style="display:none">
-        <div class="user-avatar" id="userAvatar">O</div>
-        <div class="user-details">
-          <span class="user-name" id="userName">-</span>
-          <span class="user-role-pill" id="userRole">-</span>
-        </div>
-      </div>
-      <div class="sidebar-actions">
-        <button class="btn btn-sm btn-sidebar-jwt" id="sidebarJwtBtn" title="Inspect Active RS256 JWT Token">
-          <span>🔑</span>
-          <span>JWT Cockpit</span>
-        </button>
-        <button class="btn btn-sm btn-outline btn-logout" id="logoutBtn" style="display:none">
-          <span>🚪</span>
-          <span>Sign Out</span>
-        </button>
-      </div>
-    </div>
-  </nav>
-
-  <!-- Main Viewport Container -->
-  <main class="main-viewport">
+  <!-- =========================================================================
+       NATIVE MOBILE APPLICATION FRAME (100% Mobile Bleed on Phone, 440px on Desktop)
+       ========================================================================= -->
+  <div class="mobile-app-shell" id="mobileAppShell">
     
-    <!-- =================================================================
-         VIEW 1: CAMPUS QUICK-COMMERCE (BLINKIT & SWIGGY INSTAMART STYLE)
-         Target Audience: College Students, Hostelers, Youth
-         ================================================================= -->
-    <section class="portal-view view-campus" id="campusPortalView">
-      <!-- Campus Express Banner -->
-      <div class="campus-hero-banner">
-        <div class="banner-left">
-          <div class="pill-live-tag">⚡ 10-MIN CAMPUS EXPRESS</div>
-          <h2 class="banner-headline">Hostel Munchies, Instant Maggi & Tuck-Shop Khata</h2>
-          <p class="banner-subline">Midnight cravings delivered directly to your hostel gate with split-bill & UPI pay.</p>
-          <div class="trending-chips-row">
-            <span class="trending-label">Trending:</span>
-            <button class="trend-chip" data-search="Maggi">🍜 2-Min Maggi</button>
-            <button class="trend-chip" data-search="Red Bull">🥤 Red Bull / Sting</button>
-            <button class="trend-chip" data-search="Amul">🥛 Amul Milk & Butter</button>
-            <button class="trend-chip" data-search="Chips">🍿 Uncle Chipps & Lays</button>
-            <button class="trend-chip" data-search="Stationery">📚 Registers & Pens</button>
+    <!-- Mobile Notch / Top Bar -->
+    <div class="mobile-top-notch">
+      <span class="notch-time" id="mobileClock">13:25</span>
+      <div class="notch-camera-pill"></div>
+      <div class="notch-status-icons">
+        <span class="signal-icon">📶 5G</span>
+        <span class="battery-icon">🔋 98%</span>
+      </div>
+    </div>
+
+    <!-- Mobile App Header (Blinkit Standard) -->
+    <header class="mobile-header">
+      <div class="mh-top-row">
+        <div class="mh-brand" id="brandLogoTrigger">
+          <div class="mh-brand-icon">⚡</div>
+          <div class="mh-brand-text">
+            <span class="mh-title">DesiPay</span>
+            <span class="mh-subtitle">10-MIN CAMPUS</span>
           </div>
         </div>
-        <div class="banner-right">
-          <!-- Student Running Khata Card -->
-          <div class="student-khata-card">
-            <div class="sk-header">
-              <span class="sk-icon">📒</span>
-              <div>
-                <h4>Your Tuck-Shop Udhar Tab</h4>
-                <small>Sharma Ji Campus Canteen</small>
-              </div>
-            </div>
-            <div class="sk-balance">
-              <span class="sk-amt" id="studentKhataBalance">₹180.00</span>
-              <span class="sk-status">Unsettled</span>
-            </div>
-            <div class="sk-actions">
-              <button class="btn btn-sm btn-primary" id="settleKhataUpiBtn">⚡ Pay via UPI</button>
-              <button class="btn btn-sm btn-outline" id="splitBillBtn">👥 Split Bill</button>
-            </div>
-          </div>
+
+        <!-- 1-Tap Dual-Persona Switcher (Campus ↔ Dukandaar) -->
+        <div class="mobile-mode-toggle" id="modeSwitcher">
+          <button type="button" class="mm-btn active" id="modeBtnCampus" data-mode="campus" title="Student Campus Store">
+            <span>🎓</span>
+            <span>Campus</span>
+          </button>
+          <button type="button" class="mm-btn" id="modeBtnDukandaar" data-mode="dukandaar" title="Dukandaar Vyapar POS">
+            <span>🏪</span>
+            <span>Vyapar</span>
+          </button>
+        </div>
+
+        <!-- Security Pill -->
+        <div class="mobile-jwt-badge" id="topbarJwtPill" title="Open RS256 JWT Security Cockpit">
+          <span class="jwt-dot"></span>
+          <span id="topbarJwtText">JWT Active</span>
         </div>
       </div>
 
-      <!-- Category Filter Pills Bar (Blinkit style) -->
-      <div class="categories-bar">
-        <button class="cat-pill active" data-cat="all">🔥 All Items</button>
-        <button class="cat-pill" data-cat="munchies">🍿 Munchies & Chips</button>
-        <button class="cat-pill" data-cat="maggi">🍜 Instant Maggi & Noodles</button>
-        <button class="cat-pill" data-cat="drinks">🥤 Cold Drinks & Energy</button>
-        <button class="cat-pill" data-cat="dairy">🥛 Dairy, Bread & Eggs</button>
-        <button class="cat-pill" data-cat="stationery">📚 Stationery & Xerox</button>
-        <button class="cat-pill" data-cat="chocolates">🍫 Chocolates & Sweets</button>
-      </div>
-
-      <!-- Blinkit / Swiggy Market-Ready Product Grid -->
-      <div class="product-grid-header">
-        <h3>Bestsellers in Campus Store <span class="product-count" id="productCountLabel">(8 Items)</span></h3>
-        <span class="delivery-guarantee">⚡ Instant Dispatch Guaranteed</span>
-      </div>
-
-      <div class="product-grid" id="campusProductGrid">
-        <!-- Products dynamically rendered by JavaScript with Blinkit styling -->
-      </div>
-    </section>
-
-    <!-- =================================================================
-         VIEW 2: DUKANDAAR / VYAPAR POS (BHARATPE & KHATABOOK STYLE)
-         Target Audience: Shopkeeper Uncles, Dukandaar, Store Owners
-         ================================================================= -->
-    <section class="portal-view view-dukandaar" id="dukandaarPortalView" style="display:none">
-      <!-- High-Legibility Bilingual Cashbook Banner -->
-      <div class="dukandaar-header-bar">
-        <div class="dh-store-info">
-          <div class="dh-avatar">🏪</div>
-          <div>
-            <h2 class="dh-title">ओम किराना स्टोर (Om Kirana Store)</h2>
-            <p class="dh-sub">दुकानदार डिजिटल खाता एवं यूपीआई व्यापार केंद्र • GST Verified</p>
-          </div>
-        </div>
-        <div class="dh-quick-status">
-          <span class="soundbox-mini-pill">
-            <span class="sb-dot"></span> Soundbox: 4G Connected
-          </span>
-          <span class="date-tag" id="vyaparDateTag">Today</span>
+      <!-- Location Delivery Speed Bar -->
+      <div class="mh-location-bar" id="locationPickerBtn">
+        <div class="mh-loc-flash">⚡</div>
+        <div class="mh-loc-content">
+          <span class="mh-loc-time">Delivering in 8 MINS</span>
+          <span class="mh-loc-name" id="currentLocationText">North Campus Hostel Block 4 ▾</span>
         </div>
       </div>
 
-      <!-- Giant 3-Stat Cashbook Overview Cards (Hindi + English High-Contrast) -->
-      <div class="vyapar-stats-grid">
-        <!-- Stat 1: Today's Total Sales -->
-        <div class="vstat-card sale-card">
-          <div class="vstat-icon">💰</div>
-          <div class="vstat-content">
-            <span class="vstat-hindi">आज की कुल बिक्री</span>
-            <span class="vstat-eng">Today's Total Sale</span>
-            <div class="vstat-val" id="vyaparTodaySale">₹14,850</div>
-            <span class="vstat-badge">24 यूपीआई एवं नकद ऑर्डर</span>
-          </div>
-        </div>
-
-        <!-- Stat 2: Total Market Udhar -->
-        <div class="vstat-card udhar-card">
-          <div class="vstat-icon">📒</div>
-          <div class="vstat-content">
-            <span class="vstat-hindi">मार्केट में बाकी उधार</span>
-            <span class="vstat-eng">Total Market Udhar</span>
-            <div class="vstat-val" id="vyaparTotalUdhar">₹5,420</div>
-            <span class="vstat-badge warn">8 ग्राहकों का बकाया</span>
-          </div>
-        </div>
-
-        <!-- Stat 3: Cash in Till -->
-        <div class="vstat-card cash-card">
-          <div class="vstat-icon">💵</div>
-          <div class="vstat-content">
-            <span class="vstat-hindi">दुकान में नकद (गल्ला)</span>
-            <span class="vstat-eng">Cash in Till / Bank</span>
-            <div class="vstat-val" id="vyaparCashInTill">₹9,430</div>
-            <span class="vstat-badge success">दुकान खाता सुरक्षित</span>
-          </div>
-        </div>
+      <!-- Quick Search Input -->
+      <div class="mh-search-wrapper">
+        <span class="mh-search-icon">🔍</span>
+        <input type="text" id="globalSearchInput" placeholder="Search 'Maggi, Red Bull, Chips, Registers'...">
       </div>
+    </header>
 
-      <!-- Giant Action Buttons (Khatabook Primary Actions) -->
-      <div class="vyapar-actions-bar">
-        <button class="vbtn vbtn-receive" id="btnVyaparPaymentIn">
-          <span class="vbtn-icon">🟢</span>
-          <div class="vbtn-text">
-            <strong>पैसे लिए / जमा (+ Payment In)</strong>
-            <small>कस्टमर से ऑनलाइन या नकद भुगतान दर्ज करें</small>
-          </div>
-        </button>
-
-        <button class="vbtn vbtn-give" id="btnVyaparUdharOut">
-          <span class="vbtn-icon">🔴</span>
-          <div class="vbtn-text">
-            <strong>उधार दिया / खाता (- Udhar Out)</strong>
-            <small>कस्टमर के खाते में उधार सामान जोड़ें</small>
-          </div>
-        </button>
-      </div>
-
-      <!-- Interactive Hardware Widgets Row (Soundbox & QR Standee) -->
-      <div class="hardware-widgets-grid">
-        <!-- Hardware 1: Smart 4G IoT Soundbox Card -->
-        <div class="hardware-card glass-card">
-          <div class="hw-header">
-            <div class="hw-title-group">
-              <span class="hw-icon">🔊</span>
-              <div>
-                <h3>देसीपे 4G स्मार्ट साउंडबॉक्स</h3>
-                <small>DesiPay Smart IoT Audio Announcer (4G SIM + Cloud)</small>
+    <!-- =========================================================================
+         SCROLLABLE MOBILE APP BODY
+         ========================================================================= -->
+    <main class="mobile-app-body" id="mobileAppBody">
+      
+      <!-- TAB 1: STORE / DUKAAN (DEFAULT) -->
+      <div class="tab-content active" id="tabContentStore">
+        
+        <!-- CAMPUS STORE VIEW (STUDENT / YOUTH PSYCHOLOGY) -->
+        <div class="campus-store-section" id="campusStoreSection">
+          <!-- Student Running Khata Banner -->
+          <div class="m-student-khata-card">
+            <div class="msk-header">
+              <span class="msk-icon">📒</span>
+              <div class="msk-info">
+                <h4>Sharma Ji Tuck Shop Khata</h4>
+                <small>Campus Canteen Udhar Tab</small>
               </div>
+              <span class="msk-badge">Pending</span>
             </div>
-            <span class="hw-status-pill"><span class="sb-dot"></span> LIVE 4G</span>
-          </div>
-
-          <div class="hw-body">
-            <div class="hw-image-wrapper">
-              <img src="/assets/soundbox.jpg" alt="DesiPay Smart Soundbox 4G" class="hw-photo">
-              <div class="hw-led-glow"></div>
-            </div>
-            <div class="hw-details">
-              <div class="hw-spec-row">
-                <span>बैटरी लेवल (Battery):</span>
-                <strong>88% (3 दिन बैकअप)</strong>
-              </div>
-              <div class="hw-spec-row">
-                <span>नेटवर्क (Network):</span>
-                <strong>Airtel 4G IoT (Excellent)</strong>
-              </div>
-              <div class="hw-spec-row">
-                <span>आवाज भाषा (Language):</span>
-                <strong>हिंदी / English Dual</strong>
-              </div>
-
-              <!-- Working Soundbox Voice Simulation Button! -->
-              <button class="btn btn-primary btn-full btn-soundbox-test" id="testSoundboxVoiceBtn">
-                <span>🔊</span>
-                <span>Test Voice: "₹150 प्राप्त हुए!"</span>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Hardware 2: Acrylic Countertop QR Standee -->
-        <div class="hardware-card glass-card">
-          <div class="hw-header">
-            <div class="hw-title-group">
-              <span class="hw-icon">🖨️</span>
-              <div>
-                <h3>दुकान काउंटर क्यूआर स्टैंडी</h3>
-                <small>Acrylic Desktop Counter QR Code (All UPI Apps)</small>
-              </div>
-            </div>
-            <span class="hw-status-pill success">ACTIVE UPI</span>
-          </div>
-
-          <div class="hw-body">
-            <div class="hw-image-wrapper">
-              <img src="/assets/qr_stand.jpg" alt="DesiPay QR Standee" class="hw-photo">
-            </div>
-            <div class="hw-details">
-              <div class="hw-spec-row">
-                <span>दुकान नाम (Merchant):</span>
-                <strong>Om Kirana Store</strong>
-              </div>
-              <div class="hw-spec-row">
-                <span>UPI VPA ID:</span>
-                <code>omkirana@desipay</code>
-              </div>
-              <div class="hw-spec-row">
-                <span>स्वीकृत एप्स (Apps):</span>
-                <strong>GPay, PhonePe, Paytm, BHIM</strong>
-              </div>
-
-              <div class="qr-action-buttons">
-                <button class="btn btn-outline btn-full" id="printQrStandBtn">
-                  <span>🖨️</span>
-                  <span>Print Standee</span>
-                </button>
-                <button class="btn btn-outline btn-full" id="shareQrWhatsAppBtn">
-                  <span>📲</span>
-                  <span>Share QR</span>
-                </button>
+            <div class="msk-bottom">
+              <span class="msk-amount">₹180.00</span>
+              <div class="msk-btns">
+                <button class="btn btn-sm btn-primary btn-m-settle" id="settleKhataUpiBtn">⚡ Pay UPI</button>
+                <button class="btn btn-sm btn-outline" id="splitBillBtn">👥 Split</button>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- Khatabook Debtor List with 1-Click WhatsApp Reminders -->
-      <div class="dukandaar-ledger-section glass-card">
-        <div class="ledger-header-bar">
-          <div>
-            <h3 class="ledger-title">उधार ग्राहक सूची (Active Debtors & Udhar Recovery)</h3>
-            <p class="ledger-sub">1-क्लिक से व्हाट्सएप पर भुगतान का तगादा (पेमेंट लिंक) भेजें</p>
-          </div>
-          <button class="btn btn-sm btn-outline" id="dukandaarRefreshLedgerBtn">🔄 Refresh</button>
-        </div>
-
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr>
-                <th>ग्राहक का नाम (Customer)</th>
-                <th>फोन नंबर (Mobile)</th>
-                <th>बकाया उधार (Balance)</th>
-                <th>आखिरी लेनदेन (Last Date)</th>
-                <th>व्हाट्सएप तगादा (WhatsApp Reminder)</th>
-              </tr>
-            </thead>
-            <tbody id="vyaparDebtorsBody">
-              <!-- Dynamically rendered with 1-click WhatsApp buttons -->
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- =================================================================
-         VIEW 3: PAYMENTS HISTORY PAGE
-         ================================================================= -->
-    <section class="portal-view" id="page-payments" style="display:none">
-      <div class="page-actions">
-        <button class="btn btn-primary btn-glow" id="createPaymentBtn">
-          <span>+</span>
-          <span>New Payment Order</span>
-        </button>
-        <div class="filter-pills" id="paymentFilters">
-          <button class="pill active" data-filter="ALL">All</button>
-          <button class="pill" data-filter="COMPLETED">Completed</button>
-          <button class="pill" data-filter="PENDING">Pending</button>
-        </div>
-      </div>
-      <div class="glass-card">
-        <h3 class="card-title">Payment History & Razorpay Orders</h3>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th><th>Ref ID</th></tr>
-            </thead>
-            <tbody id="paymentsBody">
-              <tr><td colspan="5" class="empty-state">No payments found</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- =================================================================
-         VIEW 4: KHATA BOOK LEDGER PAGE
-         ================================================================= -->
-    <section class="portal-view" id="page-khata" style="display:none">
-      <div class="page-actions">
-        <button class="btn btn-primary btn-glow" id="createKhataBtn">
-          <span>+</span>
-          <span>Record Khata Entry</span>
-        </button>
-      </div>
-      <div class="glass-card">
-        <h3 class="card-title">Complete Digital Khata Ledger</h3>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr><th>Date</th><th>Customer</th><th>Type</th><th>Amount</th><th>Balance</th><th>Status</th></tr>
-            </thead>
-            <tbody id="khataBody">
-              <tr><td colspan="6" class="empty-state">No khata entries</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- =================================================================
-         VIEW 5: INVENTORY & STOCK CATALOG PAGE
-         ================================================================= -->
-    <section class="portal-view" id="page-inventory" style="display:none">
-      <div class="page-actions">
-        <button class="btn btn-primary btn-glow" id="addProductBtn">+ Add New Product</button>
-        <div class="search-bar">
-          <input type="text" id="inventorySearch" placeholder="🔍 Search product name, SKU or barcode...">
-        </div>
-      </div>
-      <div class="glass-card">
-        <h3 class="card-title">MongoDB Product Catalog & Stock Matrix</h3>
-        <div class="table-container">
-          <table class="data-table">
-            <thead>
-              <tr><th>Product</th><th>SKU</th><th>Price</th><th>Stock Level</th><th>Category</th><th>Actions</th></tr>
-            </thead>
-            <tbody id="inventoryBody">
-              <tr><td colspan="6" class="empty-state">No products found</td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </section>
-
-    <!-- =================================================================
-         VIEW 6: NOTIFICATIONS PAGE
-         ================================================================= -->
-    <section class="portal-view" id="page-notifications" style="display:none">
-      <div class="page-actions">
-        <button class="btn btn-outline" id="markAllReadBtn">✓ Mark All as Read</button>
-      </div>
-      <div class="glass-card">
-        <h3 class="card-title">Security & Transaction Alerts</h3>
-        <div class="notification-list" id="notificationList">
-          <div class="empty-state">No notifications</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- =================================================================
-         VIEW 7: AUTH & JWT CREDENTIALS PAGE (WHEN SIGN IN CLICKED)
-         ================================================================= -->
-    <section class="portal-view" id="page-auth" style="display:none">
-      <div class="auth-hero-banner">
-        <div class="hero-badge">⚡ PRODUCTION READY ARCHITECTURE</div>
-        <h2 class="hero-title">Next-Gen Cyber-Secure Payments & Smart Khata</h2>
-        <p class="hero-subtitle">
-          Engineered with Asymmetric <span class="highlight">RS256 JWT Authentication</span>, 
-          tamper-evident double-entry ledger, and real-time MongoDB catalog.
-        </p>
-      </div>
-
-      <div class="auth-grid-container">
-        <!-- Left: Login & Register Card -->
-        <div class="auth-card glass-card">
-          <div class="auth-header">
-            <div class="auth-icon-ring">🏦</div>
-            <h2>Account Access</h2>
-            <p class="auth-subtitle">Sign in or create your DesiPay merchant account</p>
+          <!-- Quick Trending Tags -->
+          <div class="m-trending-scroll">
+            <button class="m-trend-tag" data-search="Maggi">🍜 Maggi</button>
+            <button class="m-trend-tag" data-search="Red Bull">🥤 Red Bull</button>
+            <button class="m-trend-tag" data-search="Sting">⚡ Sting</button>
+            <button class="m-trend-tag" data-search="Chips">🍿 Chips</button>
+            <button class="m-trend-tag" data-search="Amul">🥛 Amul</button>
+            <button class="m-trend-tag" data-search="Notebook">📚 Stationery</button>
           </div>
 
-          <!-- 1-Click Quick Demo Login Chips -->
-          <div class="demo-credentials-section">
-            <div class="demo-header">
-              <span class="demo-sparkle">⚡</span>
-              <span class="demo-title">1-Click Quick Demo Login:</span>
-              <span class="demo-hint">(Click to auto-fill & sign in)</span>
+          <!-- Category Horizontal Scroll Bar -->
+          <div class="m-category-scroll">
+            <button class="m-cat-pill active" data-cat="all">🔥 All</button>
+            <button class="m-cat-pill" data-cat="munchies">🍿 Munchies</button>
+            <button class="m-cat-pill" data-cat="maggi">🍜 Instant Maggi</button>
+            <button class="m-cat-pill" data-cat="drinks">🥤 Cold Drinks</button>
+            <button class="m-cat-pill" data-cat="dairy">🥛 Dairy & Bread</button>
+            <button class="m-cat-pill" data-cat="stationery">📚 Stationery</button>
+            <button class="m-cat-pill" data-cat="chocolates">🍫 Chocolates</button>
+          </div>
+
+          <!-- Product Grid Header -->
+          <div class="m-product-grid-header">
+            <h3>Bestsellers <span class="count" id="productCountLabel">(8 Items)</span></h3>
+            <span class="instant-pill">⚡ 8 MINS DISPATCH</span>
+          </div>
+
+          <!-- Blinkit / Swiggy 2-Column Product Grid -->
+          <div class="m-product-grid" id="campusProductGrid">
+            <!-- Dynamically populated by app.js -->
+          </div>
+        </div>
+
+        <!-- DUKANDAAR VYAPAR POS VIEW (KIRANA UNCLE PSYCHOLOGY) -->
+        <div class="dukandaar-pos-section" id="dukandaarPosSection" style="display:none">
+          <!-- Store Profile Header -->
+          <div class="m-dukandaar-header">
+            <div class="mdh-avatar">🏪</div>
+            <div class="mdh-info">
+              <h2 class="mdh-name">ओम किराना स्टोर</h2>
+              <small>Om Kirana Store • डिजिटल व्यापार खाता</small>
             </div>
-            <div class="demo-chips-grid">
-              <button type="button" class="demo-chip" data-role="shopkeeper" title="Om Kirana Store (Full Shopkeeper Admin)">
-                <span class="chip-icon">🛒</span>
-                <div class="chip-info">
-                  <span class="chip-title">Dukandaar Uncle (Shopkeeper)</span>
-                  <span class="chip-email">shopkeeper.live@desipay.com</span>
-                </div>
-                <span class="chip-badge role-shopkeeper">Vyapar Admin</span>
-              </button>
-
-              <button type="button" class="demo-chip" data-role="customer" title="Aakash Kumar (Campus Student)">
-                <span class="chip-icon">🎓</span>
-                <div class="chip-info">
-                  <span class="chip-title">Campus Student (Customer)</span>
-                  <span class="chip-email">customer.live@desipay.com</span>
-                </div>
-                <span class="chip-badge role-customer">Student</span>
-              </button>
-
-              <button type="button" class="demo-chip" data-role="b2b" title="Apex Wholesale Ltd (B2B Merchant)">
-                <span class="chip-icon">🏢</span>
-                <div class="chip-info">
-                  <span class="chip-title">B2B Wholesale Buyer</span>
-                  <span class="chip-email">b2b.live@desipay.com</span>
-                </div>
-                <span class="chip-badge role-b2b">Wholesale</span>
-              </button>
-            </div>
+            <span class="mdh-soundbox-status">
+              <span class="sb-live-dot"></span> 4G
+            </span>
           </div>
 
-          <div class="auth-tabs">
-            <button class="auth-tab active" data-tab="login">Sign In</button>
-            <button class="auth-tab" data-tab="register">Create Account</button>
-          </div>
-
-          <!-- Login Form -->
-          <form id="loginForm" class="auth-form">
-            <div class="form-group">
-              <label for="loginEmail">Email Address</label>
-              <div class="input-with-icon">
-                <span class="input-icon">✉️</span>
-                <input type="email" id="loginEmail" placeholder="you@desipay.com" required value="shopkeeper.live@desipay.com">
+          <!-- Big Bilingual 3-Metric Cashbook Cards -->
+          <div class="m-vyapar-cards-stack">
+            <!-- Card 1: Today's Sale -->
+            <div class="mv-card mv-sale">
+              <div class="mv-top">
+                <span class="mv-hindi">आज की कुल बिक्री</span>
+                <span class="mv-icon">💰</span>
+              </div>
+              <div class="mv-amount" id="vyaparTodaySale">₹14,850</div>
+              <div class="mv-footer">
+                <span>Today's Total Sales</span>
+                <strong class="mv-badge">24 यूपीआई ऑर्डर</strong>
               </div>
             </div>
 
-            <div class="form-group">
-              <label for="loginPassword">Password</label>
-              <div class="input-with-icon">
-                <span class="input-icon">🔒</span>
-                <input type="password" id="loginPassword" placeholder="••••••••" required value="Password@123">
-                <button type="button" class="password-toggle-btn" id="togglePasswordBtn" title="Show or hide password">
-                  👁️
-                </button>
+            <!-- Card 2: Market Udhar -->
+            <div class="mv-card mv-udhar">
+              <div class="mv-top">
+                <span class="mv-hindi">मार्केट में बाकी उधार</span>
+                <span class="mv-icon">📒</span>
+              </div>
+              <div class="mv-amount text-red" id="vyaparTotalUdhar">₹5,420</div>
+              <div class="mv-footer">
+                <span>Total Market Udhar</span>
+                <strong class="mv-badge warn">8 ग्राहकों का बकाया</strong>
               </div>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-full btn-glow">
-              <span>Sign In with RS256 JWT</span>
-              <span>→</span>
+            <!-- Card 3: Cash in Till -->
+            <div class="mv-card mv-cash">
+              <div class="mv-top">
+                <span class="mv-hindi">गल्ले में नकद (Till Cash)</span>
+                <span class="mv-icon">💵</span>
+              </div>
+              <div class="mv-amount text-green" id="vyaparCashInTill">₹9,430</div>
+              <div class="mv-footer">
+                <span>Verified by Bank Ledger</span>
+                <strong class="mv-badge success">खाता सुरक्षित</strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Massive High-Contrast Action Buttons (Khatabook Primary Tap Targets) -->
+          <div class="m-giant-action-buttons">
+            <button class="m-giant-btn btn-payment-in" id="btnVyaparPaymentIn">
+              <span class="mgb-icon">🟢</span>
+              <div class="mgb-text">
+                <strong>पैसे लिए / जमा</strong>
+                <small>+ Payment Received</small>
+              </div>
             </button>
-            <div class="form-error" id="loginError"></div>
-          </form>
 
-          <!-- Register Form -->
-          <form id="registerForm" class="auth-form" style="display:none">
-            <div class="form-group">
-              <label for="regName">Full Name / Merchant Name</label>
-              <div class="input-with-icon">
-                <span class="input-icon">👤</span>
-                <input type="text" id="regName" placeholder="Om Chauhan" required>
+            <button class="m-giant-btn btn-udhar-out" id="btnVyaparUdharOut">
+              <span class="mgb-icon">🔴</span>
+              <div class="mgb-text">
+                <strong>उधार दिया / खाता</strong>
+                <small>- Give Udhar</small>
               </div>
+            </button>
+          </div>
+
+          <!-- Quick Hardware Shortcut Cards -->
+          <div class="m-hardware-shortcuts">
+            <div class="m-hw-chip" id="quickSoundboxChip">
+              <span class="m-hw-icon">🔊</span>
+              <div class="m-hw-content">
+                <strong>4G स्मार्ट साउंडबॉक्स</strong>
+                <small>Test Voice: "₹150 प्राप्त हुए!"</small>
+              </div>
+              <span class="m-hw-action">बोलें →</span>
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="regEmail">Email Address</label>
-                <div class="input-with-icon">
-                  <span class="input-icon">✉️</span>
-                  <input type="email" id="regEmail" placeholder="om@example.com" required>
-                </div>
+
+            <div class="m-hw-chip" id="quickQrStandChip">
+              <span class="m-hw-icon">🖨️</span>
+              <div class="m-hw-content">
+                <strong>दुकान काउंटर क्यूआर</strong>
+                <small>Om Kirana Store UPI Standee</small>
               </div>
-              <div class="form-group">
-                <label for="regPhone">Phone (Indian +91)</label>
-                <div class="input-with-icon">
-                  <span class="input-icon">📱</span>
-                  <input type="tel" id="regPhone" placeholder="+919876543210" required>
-                </div>
-              </div>
+              <span class="m-hw-action">देखें →</span>
             </div>
-            <div class="form-row">
-              <div class="form-group">
-                <label for="regPassword">Password</label>
-                <input type="password" id="regPassword" placeholder="Min 8 chars" required>
-              </div>
-              <div class="form-group">
-                <label for="regConfirm">Confirm</label>
-                <input type="password" id="regConfirm" placeholder="••••••••" required>
-              </div>
-            </div>
-            <div class="form-group">
-              <label for="regRole">Role</label>
-              <select id="regRole">
-                <option value="SHOPKEEPER">Dukandaar / Shopkeeper (Store POS)</option>
-                <option value="CUSTOMER" selected>College Student / Customer</option>
-                <option value="B2B_CUSTOMER">B2B Wholesale Buyer</option>
-              </select>
-            </div>
-            <button type="submit" class="btn btn-primary btn-full btn-glow">Create Account</button>
-            <div class="form-error" id="registerError"></div>
-          </form>
+          </div>
         </div>
 
-        <!-- Right: Live JWT Token Inspector & Debugger Card -->
-        <div class="jwt-inspector-card glass-card" id="authJwtCard">
+      </div>
+
+      <!-- TAB 2: KHATA LEDGER -->
+      <div class="tab-content" id="tabContentKhata" style="display:none">
+        <div class="tab-header-bar">
+          <h2>डिजिटल खाता बही (Khata Ledger)</h2>
+          <button class="btn btn-sm btn-primary" id="createKhataTabBtn">+ New Entry</button>
+        </div>
+
+        <!-- Debtors List with 1-Click WhatsApp Reminders -->
+        <div class="m-khata-list" id="vyaparDebtorsMobileList">
+          <!-- Dynamically populated with WhatsApp reminder cards -->
+        </div>
+      </div>
+
+      <!-- TAB 3: SMART SOUNDBOX & QR STANDEE -->
+      <div class="tab-content" id="tabContentSoundbox" style="display:none">
+        <div class="tab-header-bar">
+          <h2>4G साउंडबॉक्स एवं काउंटर क्यूआर</h2>
+        </div>
+
+        <!-- Soundbox Hardware Card -->
+        <div class="m-device-card">
+          <div class="mdc-top">
+            <span class="mdc-tag">4G IOT SMART AUDIO</span>
+            <span class="mdc-battery">🔋 88% Battery</span>
+          </div>
+          <div class="mdc-visual">
+            <img src="/assets/soundbox.jpg" alt="DesiPay Smart Soundbox" class="mdc-image">
+            <div class="mdc-glow"></div>
+          </div>
+          <div class="mdc-details">
+            <h3>देसीपे 4G स्मार्ट साउंडबॉक्स</h3>
+            <p>जब भी कोई ग्राहक फोनपे, गूगलपे या पेटीएम से भुगतान करेगा, साउंडबॉक्स तुरंत आवाज में बताएगा।</p>
+            <button class="btn btn-primary btn-full btn-voice-demo" id="testSoundboxVoiceBtn">
+              <span>🔊</span>
+              <span>Test Announcement: "₹150 प्राप्त हुए!"</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Countertop QR Standee Card -->
+        <div class="m-device-card" style="margin-top:1.5rem">
+          <div class="mdc-top">
+            <span class="mdc-tag">BHIM UPI ALL APPS</span>
+            <span class="mdc-status">ACTIVE</span>
+          </div>
+          <div class="mdc-visual">
+            <img src="/assets/qr_stand.jpg" alt="DesiPay QR Standee" class="mdc-image">
+          </div>
+          <div class="mdc-details">
+            <h3>दुकान काउंटर क्यूआर स्टैंडी</h3>
+            <p>VPA: <code>omkirana@desipay</code> • PhonePe, GPay, Paytm, BHIM</p>
+            <div class="mdc-btns">
+              <button class="btn btn-outline btn-full" id="printQrStandBtn">🖨️ Print Standee</button>
+              <button class="btn btn-outline btn-full" id="shareQrWhatsAppBtn">📲 Share QR on WhatsApp</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 4: UPI PAYMENTS HISTORY -->
+      <div class="tab-content" id="tabContentPayments" style="display:none">
+        <div class="tab-header-bar">
+          <h2>UPI Payments & Orders</h2>
+          <button class="btn btn-sm btn-primary" id="createPaymentTabBtn">+ New Payment</button>
+        </div>
+        <div class="m-payments-list" id="paymentsMobileList">
+          <div class="empty-state">Loading payment transactions...</div>
+        </div>
+      </div>
+
+      <!-- TAB 5: ACCOUNT & RS256 JWT COCKPIT -->
+      <div class="tab-content" id="tabContentAccount" style="display:none">
+        <div class="tab-header-bar">
+          <h2>Account & Security Cockpit</h2>
+        </div>
+
+        <!-- 1-Click Quick Demo Login Chips -->
+        <div class="demo-credentials-section">
+          <div class="demo-header">
+            <span class="demo-sparkle">⚡</span>
+            <span class="demo-title">1-Click Quick Demo Login:</span>
+          </div>
+          <div class="demo-chips-grid">
+            <button type="button" class="demo-chip" data-role="shopkeeper" title="Om Kirana Store (Dukandaar POS)">
+              <span class="chip-icon">🛒</span>
+              <div class="chip-info">
+                <span class="chip-title">Dukandaar Uncle (Shopkeeper)</span>
+                <span class="chip-email">shopkeeper.live@desipay.com</span>
+              </div>
+              <span class="chip-badge role-shopkeeper">Vyapar Admin</span>
+            </button>
+
+            <button type="button" class="demo-chip" data-role="customer" title="Aakash Kumar (Campus Student)">
+              <span class="chip-icon">🎓</span>
+              <div class="chip-info">
+                <span class="chip-title">Campus Student (Customer)</span>
+                <span class="chip-email">customer.live@desipay.com</span>
+              </div>
+              <span class="chip-badge role-customer">Student</span>
+            </button>
+
+            <button type="button" class="demo-chip" data-role="b2b" title="Apex Wholesale Ltd (B2B Merchant)">
+              <span class="chip-icon">🏢</span>
+              <div class="chip-info">
+                <span class="chip-title">B2B Wholesale Buyer</span>
+                <span class="chip-email">b2b.live@desipay.com</span>
+              </div>
+              <span class="chip-badge role-b2b">Wholesale</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live RS256 JWT Cockpit Card -->
+        <div class="jwt-inspector-card glass-card">
           <div class="jwt-card-header">
             <div class="jwt-title-wrap">
               <span class="jwt-header-icon">🛡️</span>
               <div>
-                <h3 class="jwt-title">Live RS256 JWT Cockpit</h3>
-                <p class="jwt-subtitle">Cryptographic inspection & claims verification</p>
+                <h3 class="jwt-title">RS256 JWT Security Cockpit</h3>
+                <small id="jwtStatusText">No Active Token</small>
               </div>
             </div>
-            <div class="jwt-status-badge" id="jwtStatusBadge">
-              <span class="pulse-dot"></span>
-              <span id="jwtStatusText">No Active Token</span>
-            </div>
+            <span class="jwt-status-badge" id="jwtStatusBadge">
+              <span class="pulse-dot"></span> Active
+            </span>
           </div>
 
-          <div class="jwt-countdown-bar" id="jwtCountdownBar">
+          <div class="jwt-countdown-bar">
             <div class="countdown-label">
-              <span>Token Lifespan:</span>
-              <strong id="jwtTimerText">--:--</strong>
+              <span>Token Validity:</span>
+              <strong id="jwtTimerText">15:00</strong>
             </div>
             <div class="countdown-track">
-              <div class="countdown-progress" id="jwtProgressBar" style="width: 0%"></div>
+              <div class="countdown-progress" id="jwtProgressBar" style="width: 100%"></div>
             </div>
           </div>
 
-          <div class="claims-grid" id="claimsGrid">
+          <div class="claims-grid">
             <div class="claim-item">
               <span class="claim-label">Role</span>
               <span class="claim-val badge-role" id="jwtClaimRole">GUEST</span>
@@ -740,103 +408,154 @@
 
           <div class="raw-jwt-container">
             <div class="raw-jwt-header">
-              <span class="raw-label">Raw Bearer Token (Header . Payload . Signature)</span>
-              <button type="button" class="btn-copy-token" id="copyJwtBtn" title="Copy raw JWT to clipboard">
-                📋 Copy Token
-              </button>
+              <span class="raw-label">Raw Bearer Token</span>
+              <button type="button" class="btn-copy-token" id="copyJwtBtn">📋 Copy</button>
             </div>
             <div class="raw-jwt-box" id="rawJwtBox">
-              <span class="jwt-placeholder">Log in to inspect live RS256 token.</span>
+              <span class="jwt-placeholder">Log in to view token.</span>
             </div>
           </div>
 
           <div class="jwt-actions-bar">
-            <button type="button" class="btn btn-sm btn-outline" id="refreshJwtBtn">🔄 Refresh Token</button>
-            <button type="button" class="btn btn-sm btn-outline" id="injectJwtBtn">🧪 Inject Token</button>
+            <button type="button" class="btn btn-sm btn-outline" id="refreshJwtBtn">🔄 Refresh</button>
+            <button type="button" class="btn btn-sm btn-outline" id="injectJwtBtn">🧪 Custom Token</button>
             <button type="button" class="btn btn-sm btn-danger" id="clearJwtBtn">🚫 Clear Token</button>
           </div>
         </div>
-      </div>
-    </section>
 
-    <!-- =================================================================
-         STICKY FLOATING CART DOCK (BLINKIT & SWIGGY STANDARD)
-         ================================================================= -->
-    <div class="floating-cart-dock" id="floatingCartDock" style="display:none">
-      <div class="dock-left">
-        <div class="dock-cart-badge">
+        <!-- Sign Out Action -->
+        <button class="btn btn-danger btn-full" id="logoutBtn" style="margin-top:1.5rem">
+          <span>🚪</span>
+          <span>Sign Out of DesiPay</span>
+        </button>
+      </div>
+
+    </main>
+
+    <!-- =========================================================================
+         STICKY FLOATING CART DOCK (Above Bottom Nav, Blinkit Standard)
+         ========================================================================= -->
+    <div class="m-floating-cart-dock" id="floatingCartDock" style="display:none">
+      <div class="m-dock-info">
+        <div class="m-dock-badge">
           <span>🛒</span>
-          <span class="badge-count" id="dockCartCount">2</span>
+          <span class="m-dock-count" id="dockCartCount">2</span>
         </div>
-        <div class="dock-pricing">
-          <span class="dock-total" id="dockCartTotal">₹148.00</span>
-          <span class="dock-saved">⚡ FREE 8-Min Delivery to Hostel</span>
+        <div class="m-dock-text">
+          <span class="m-dock-total" id="dockCartTotal">₹148.00</span>
+          <span class="m-dock-delivery">⚡ FREE 8-Min Delivery</span>
         </div>
       </div>
-      <button class="btn-dock-checkout" id="dockCheckoutBtn">
-        <span>Proceed to UPI Pay</span>
+      <button class="m-dock-btn" id="dockCheckoutBtn">
+        <span>View Cart & Pay UPI</span>
         <span>→</span>
       </button>
     </div>
 
-    <!-- =================================================================
-         SLIDEOUT CART & UPI CHECKOUT DRAWER
-         ================================================================= -->
-    <div class="cart-drawer-overlay" id="cartDrawerOverlay" style="display:none">
-      <div class="cart-drawer">
-        <div class="cart-drawer-header">
-          <div class="cd-title">
-            <h3>🛒 Your Campus Cart</h3>
-            <span class="cd-tag">⚡ 8 Mins to Hostel Gate</span>
-          </div>
-          <button class="cd-close-btn" id="closeCartDrawerBtn">✕</button>
+    <!-- =========================================================================
+         NATIVE MOBILE BOTTOM NAVIGATION BAR (THE THUMB ZONE)
+         ========================================================================= -->
+    <nav class="mobile-bottom-nav">
+      <button class="mbn-item active" data-tab="Store">
+        <span class="mbn-icon">🛍️</span>
+        <span class="mbn-label">Store</span>
+      </button>
+      <button class="mbn-item" data-tab="Khata">
+        <span class="mbn-icon">📒</span>
+        <span class="mbn-label">Khata</span>
+      </button>
+      <button class="mbn-item" data-tab="Soundbox">
+        <span class="mbn-icon">🔊</span>
+        <span class="mbn-label">Soundbox</span>
+      </button>
+      <button class="mbn-item" data-tab="Payments">
+        <span class="mbn-icon">💳</span>
+        <span class="mbn-label">UPI Pay</span>
+      </button>
+      <button class="mbn-item" data-tab="Account">
+        <span class="mbn-icon">🔑</span>
+        <span class="mbn-label">Account</span>
+      </button>
+    </nav>
+
+    <!-- =========================================================================
+         SLIDE-UP BOTTOM SHEETS
+         ========================================================================= -->
+    <!-- Sheet 1: Cart & UPI Checkout -->
+    <div class="bottom-sheet-overlay" id="cartSheetOverlay" style="display:none">
+      <div class="bottom-sheet">
+        <div class="bs-handle"></div>
+        <div class="bs-header">
+          <h3>🛒 Your Campus Cart</h3>
+          <button class="bs-close" id="closeCartSheetBtn">✕</button>
         </div>
-
-        <div class="cart-drawer-body">
-          <div class="cart-items-list" id="cartItemsList">
-            <!-- Dynamic Cart Items -->
-          </div>
-
+        <div class="bs-body">
+          <div class="cart-items-list" id="cartItemsList"></div>
           <div class="cart-bill-summary">
-            <h4>Bill Summary</h4>
-            <div class="bill-row">
-              <span>Item Total</span>
-              <span id="billSubtotal">₹0</span>
-            </div>
-            <div class="bill-row">
-              <span>Delivery Fee (Campus Express)</span>
-              <span class="free-pill">FREE</span>
-            </div>
-            <div class="bill-row">
-              <span>Handling & Packaging</span>
-              <span class="free-pill">FREE</span>
-            </div>
-            <div class="bill-row total-row">
-              <strong>Grand Total</strong>
-              <strong id="billGrandTotal">₹0</strong>
-            </div>
+            <h4>Bill Details</h4>
+            <div class="bill-row"><span>Item Total</span><span id="billSubtotal">₹0</span></div>
+            <div class="bill-row"><span>Hostel Gate Delivery</span><span class="free-tag">FREE</span></div>
+            <div class="bill-row total-row"><strong>To Pay</strong><strong id="billGrandTotal">₹0</strong></div>
           </div>
         </div>
-
-        <div class="cart-drawer-footer">
-          <button class="btn btn-primary btn-full btn-glow btn-pay-upi" id="btnPayUpiCart">
-            <span>⚡ Pay via UPI / Razorpay (Instant)</span>
+        <div class="bs-footer">
+          <button class="btn btn-primary btn-full btn-pay-upi" id="btnPayUpiCart">
+            <span>⚡ Pay via UPI (GPay / PhonePe / Paytm)</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- =================================================================
-         GLOBAL MODALS: PAYMENT, KHATA, PRODUCT, SOUNDBOX & JWT COCKPIT
-         ================================================================= -->
-    <!-- Create Payment Modal -->
-    <div class="modal-overlay" id="paymentModal" style="display:none">
-      <div class="modal glass-card">
-        <div class="modal-header">
-          <h3>Create Payment Order</h3>
-          <button class="modal-close" data-close="paymentModal">×</button>
+    <!-- Sheet 2: Campus Location Selector -->
+    <div class="bottom-sheet-overlay" id="locationSheetOverlay" style="display:none">
+      <div class="bottom-sheet">
+        <div class="bs-handle"></div>
+        <div class="bs-header">
+          <h3>Select Campus Delivery Location</h3>
+          <button class="bs-close" id="closeLocationSheetBtn">✕</button>
         </div>
-        <form id="createPaymentForm">
+        <div class="location-list">
+          <button class="location-item active" data-loc="North Campus Hostel Block 4">
+            <span class="loc-item-icon">🏢</span>
+            <div class="loc-item-text">
+              <strong>North Campus Hostel Block 4</strong>
+              <small>Common Room / Gate 1 • 8 Mins</small>
+            </div>
+          </button>
+          <button class="location-item" data-loc="Boys Hostel 3 (Room 214)">
+            <span class="loc-item-icon">🛏️</span>
+            <div class="loc-item-text">
+              <strong>Boys Hostel 3 (Room 214)</strong>
+              <small>Doorstep Delivery • 10 Mins</small>
+            </div>
+          </button>
+          <button class="location-item" data-loc="Library & Reading Hall Gate">
+            <span class="loc-item-icon">📚</span>
+            <div class="loc-item-text">
+              <strong>Library & Reading Hall Gate</strong>
+              <small>Pickup Point • 7 Mins</small>
+            </div>
+          </button>
+          <button class="location-item" data-loc="Om Kirana Store Counter">
+            <span class="loc-item-icon">🏪</span>
+            <div class="loc-item-text">
+              <strong>Om Kirana Store Counter</strong>
+              <small>Instant Counter Pickup • 0 Mins</small>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sheet 3: Payment Modal -->
+    <div class="bottom-sheet-overlay" id="paymentSheetOverlay" style="display:none">
+      <div class="bottom-sheet">
+        <div class="bs-handle"></div>
+        <div class="bs-header">
+          <h3>Create UPI Payment Order</h3>
+          <button class="bs-close" id="closePaymentSheetBtn">✕</button>
+        </div>
+        <form id="createPaymentForm" style="padding: 1rem 0">
           <div class="amount-presets">
             <span class="preset-label">Quick Amounts:</span>
             <div class="preset-chips">
@@ -854,26 +573,27 @@
             <label for="payDesc">Description / Note</label>
             <input type="text" id="payDesc" placeholder="Hostel tuck shop snack payment">
           </div>
-          <button type="submit" class="btn btn-primary btn-full btn-glow">Generate Razorpay Order</button>
+          <button type="submit" class="btn btn-primary btn-full">Generate Razorpay Order</button>
           <div class="form-error" id="paymentError"></div>
         </form>
       </div>
     </div>
 
-    <!-- Create Khata Modal -->
-    <div class="modal-overlay" id="khataModal" style="display:none">
-      <div class="modal glass-card">
-        <div class="modal-header">
+    <!-- Sheet 4: Khata Entry Modal -->
+    <div class="bottom-sheet-overlay" id="khataSheetOverlay" style="display:none">
+      <div class="bottom-sheet">
+        <div class="bs-handle"></div>
+        <div class="bs-header">
           <h3>नया खाता प्रविष्टि (New Khata Entry)</h3>
-          <button class="modal-close" data-close="khataModal">×</button>
+          <button class="bs-close" id="closeKhataSheetBtn">✕</button>
         </div>
-        <form id="createKhataForm">
+        <form id="createKhataForm" style="padding: 1rem 0">
           <div class="form-group">
             <label for="khataCustomerId">Customer UUID / ID</label>
             <input type="text" id="khataCustomerId" placeholder="e.g. 7c9e6679-7425-40de-944b-e07fc1f90ae7" required>
           </div>
           <div class="form-group">
-            <label for="khataType">Entry Type (प्रकार)</label>
+            <label for="khataType">प्रकार (Entry Type)</label>
             <div class="entry-type-selector">
               <label class="type-option">
                 <input type="radio" name="khataTypeRadio" value="CREDIT" checked>
@@ -887,91 +607,24 @@
             <input type="hidden" id="khataType" value="CREDIT">
           </div>
           <div class="form-group">
-            <label for="khataAmount">Amount (रुपये ₹)</label>
+            <label for="khataAmount">रुपये (₹ Amount)</label>
             <input type="number" id="khataAmount" step="0.01" min="1" placeholder="180.00" required>
           </div>
           <div class="form-group">
             <label for="khataDesc">सामान विवरण (Items Note)</label>
-            <input type="text" id="khataDesc" placeholder="2 Maggi, 1 Red Bull, 1 Lays">
+            <input type="text" id="khataDesc" placeholder="2 Maggi, 1 Red Bull">
           </div>
-          <button type="submit" class="btn btn-primary btn-full btn-glow">Commit to Ledger (खाते में लिखें)</button>
+          <button type="submit" class="btn btn-primary btn-full">खाते में लिखें (Commit to Ledger)</button>
           <div class="form-error" id="khataError"></div>
         </form>
       </div>
     </div>
 
-    <!-- Global RS256 JWT Cockpit Modal -->
-    <div class="modal-overlay" id="jwtCockpitModal" style="display:none">
-      <div class="modal glass-card modal-lg">
-        <div class="modal-header">
-          <div class="modal-title-group">
-            <span class="modal-icon">🛡️</span>
-            <div>
-              <h3>RS256 JWT Security Cockpit</h3>
-              <p class="modal-subtitle">Real-time token validation, claims inspection, and lifecycle operations</p>
-            </div>
-          </div>
-          <button class="modal-close" data-close="jwtCockpitModal">×</button>
-        </div>
-
-        <div class="modal-jwt-body">
-          <div class="modal-status-row">
-            <div class="modal-status-item">
-              <span class="ms-label">Token Status</span>
-              <div class="ms-val" id="modalJwtStatusBadge">
-                <span class="pulse-dot"></span>
-                <span id="modalJwtStatusText">No Active Token</span>
-              </div>
-            </div>
-            <div class="modal-status-item">
-              <span class="ms-label">Expires In</span>
-              <div class="ms-val ms-timer" id="modalJwtTimerText">--:--</div>
-            </div>
-            <div class="modal-status-item">
-              <span class="ms-label">Signing Algorithm</span>
-              <div class="ms-val ms-mono">RS256 (4096-bit RSA)</div>
-            </div>
-          </div>
-
-          <div class="modal-claims-section">
-            <div class="section-title-bar">
-              <span>Decoded Claims (Payload)</span>
-              <span class="claims-tag">VERIFIED BY PUBLIC KEY</span>
-            </div>
-            <pre class="json-code-box" id="modalClaimsJson">{ "status": "unauthenticated" }</pre>
-          </div>
-
-          <div class="modal-raw-section">
-            <div class="section-title-bar">
-              <span>Raw Bearer Token</span>
-              <button type="button" class="btn-copy-token" id="modalCopyJwtBtn">📋 Copy Bearer Token</button>
-            </div>
-            <div class="raw-jwt-box" id="modalRawJwtBox">
-              <span class="jwt-placeholder">No active token.</span>
-            </div>
-          </div>
-
-          <div class="modal-inject-section">
-            <label for="customJwtInput">Inject / Test Custom JWT Token:</label>
-            <div class="inject-input-row">
-              <input type="text" id="customJwtInput" placeholder="Paste custom JWT here to test against /api/v1/auth/me...">
-              <button type="button" class="btn btn-sm btn-primary" id="applyCustomJwtBtn">Apply & Test</button>
-            </div>
-          </div>
-
-          <div class="modal-footer-actions">
-            <button type="button" class="btn btn-outline" id="modalRefreshJwtBtn">🔄 Refresh Access Token</button>
-            <button type="button" class="btn btn-danger" id="modalClearJwtBtn">🚫 Invalidate Session</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Toast Container -->
+    <!-- Toast Notifications Container -->
     <div class="toast-container" id="toastContainer"></div>
-  </main>
+  </div>
 
-  <!-- Application Logic Modules -->
+  <!-- Scripts -->
   <script src="/js/api.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/dashboard.js"></script>

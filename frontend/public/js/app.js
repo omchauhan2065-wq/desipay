@@ -1,21 +1,18 @@
 /**
- * DesiPay — Commercial Application Orchestrator
+ * DesiPay — Mobile-First Application Orchestrator
  * ===================================================================
- * Dual-Persona Engine:
- * 1. 🎓 Campus Quick-Commerce Store (Blinkit & Swiggy Instamart)
- * 2. 🏪 Vyapar POS & Smart Khata (BharatPe & Khatabook)
- * 
- * Features:
- * - Real-time Product Catalog with [ - 1 + ] spring steppers
- * - Sticky Floating Cart Dock & Slideout Drawer
- * - DesiPay 4G Smart Soundbox with Hindi audio speech synthesis
+ * Built for Mobile Ergonomics (Thumb Zone) & User Psychology:
+ * - 5-Tab Native Mobile Bottom Navigation (Store, Khata, Soundbox, UPI, Account)
+ * - Blinkit/Swiggy 2-Column Campus Catalog with [ - 1 + ] steppers
+ * - Sticky Floating Cart Dock & Slide-Up Bottom Sheets
+ * - DesiPay 4G Smart Soundbox with Hindi audio voice announcement
  * - Khatabook 1-Click WhatsApp Payment Reminders
- * - Mode Switcher, Campus Location Picker, and RS256 JWT Security
+ * - Mode Switcher: Campus Student ↔ Dukandaar POS
  * 
  * Developed by: Om Chauhan
  */
 
-// Bestseller Campus Catalog (Blinkit / Swiggy Instamart)
+// Bestseller Campus Catalog
 const CAMPUS_CATALOG = [
   {
     id: 'prod-maggi',
@@ -109,36 +106,41 @@ const CAMPUS_CATALOG = [
 
 const app = {
   currentMode: 'campus', // 'campus' | 'dukandaar'
-  currentPage: 'home',
+  activeTab: 'Store',
   currentUser: null,
   cart: {}, // { productId: qty }
 
   async init() {
-    // Sub-modules initialization
+    // Initialize sub-modules
     auth.init();
     payments.init();
     khata.init();
     inventory.init();
     notifications.init();
 
+    // Mobile Notch Live Clock
+    this.startMobileClock();
+
+    // Mobile Bottom Navigation Bar (Thumb Zone)
+    this.setupBottomNav();
+
     // Mode Switcher (Campus ↔ Dukandaar)
     this.setupModeSwitcher();
 
-    // Campus Catalog & Cart
+    // Campus Storefront & Cart
     this.renderCampusCatalog('all');
     this.setupCampusCart();
 
-    // Dukandaar Hardware & Ledger Tools
+    // Dukandaar Tools & Soundbox
     this.setupDukandaarTools();
 
-    // Navigation & Modals
-    this.setupNavigation();
-    this.setupLocationPicker();
+    // Bottom Sheets & Location Picker
+    this.setupBottomSheets();
 
-    // Check API Status
+    // API Status Check
     this.checkApiStatus();
 
-    // Check if user is logged in
+    // Check existing authentication
     if (api.isAuthenticated()) {
       try {
         const result = await api.get('/auth/me');
@@ -151,8 +153,89 @@ const app = {
       }
     }
 
-    // Default to Campus Mode for guest
+    // Default to Campus Mode
     this.switchPortalMode('campus');
+  },
+
+  startMobileClock() {
+    const clockEl = document.getElementById('mobileClock');
+    const update = () => {
+      const now = new Date();
+      const hrs = now.getHours().toString().padStart(2, '0');
+      const mins = now.getMinutes().toString().padStart(2, '0');
+      if (clockEl) clockEl.textContent = `${hrs}:${mins}`;
+    };
+    update();
+    setInterval(update, 10000);
+  },
+
+  // =========================================================================
+  // MOBILE BOTTOM NAVIGATION (THE THUMB ZONE)
+  // =========================================================================
+
+  setupBottomNav() {
+    document.querySelectorAll('.mbn-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const tab = item.dataset.tab;
+        this.switchTab(tab);
+      });
+    });
+
+    // Topbar Brand click -> Go to Store
+    const brandTrigger = document.getElementById('brandLogoTrigger');
+    if (brandTrigger) {
+      brandTrigger.addEventListener('click', () => this.switchTab('Store'));
+    }
+
+    // Topbar JWT Pill click -> Go to Account tab
+    const topbarJwtPill = document.getElementById('topbarJwtPill');
+    if (topbarJwtPill) {
+      topbarJwtPill.addEventListener('click', () => this.switchTab('Account'));
+    }
+
+    // Hardware shortcut clicks from Dukandaar Store view
+    const quickSoundbox = document.getElementById('quickSoundboxChip');
+    if (quickSoundbox) {
+      quickSoundbox.addEventListener('click', () => this.switchTab('Soundbox'));
+    }
+
+    const quickQrStand = document.getElementById('quickQrStandChip');
+    if (quickQrStand) {
+      quickQrStand.addEventListener('click', () => this.switchTab('Soundbox'));
+    }
+  },
+
+  switchTab(tabName) {
+    this.activeTab = tabName;
+
+    // Update Bottom Nav active state
+    document.querySelectorAll('.mbn-item').forEach(item => {
+      item.classList.toggle('active', item.dataset.tab === tabName);
+    });
+
+    // Hide all tab contents, show active
+    document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+    const targetContent = document.getElementById(`tabContent${tabName}`);
+    if (targetContent) targetContent.style.display = 'flex';
+
+    // Show/hide floating cart dock (only visible on Store tab in campus mode)
+    const dock = document.getElementById('floatingCartDock');
+    if (dock) {
+      if (tabName === 'Store' && this.currentMode === 'campus' && this.getCartCount() > 0) {
+        dock.style.display = 'flex';
+      } else {
+        dock.style.display = 'none';
+      }
+    }
+
+    // Tab-specific data loading
+    if (tabName === 'Khata') {
+      this.loadKhataTabData();
+    } else if (tabName === 'Payments') {
+      this.loadPaymentsTabData();
+    } else if (tabName === 'Account') {
+      auth.renderJwtInspector();
+    }
   },
 
   // =========================================================================
@@ -177,39 +260,29 @@ const app = {
 
     const btnCampus = document.getElementById('modeBtnCampus');
     const btnDukandaar = document.getElementById('modeBtnDukandaar');
-    const campusView = document.getElementById('campusPortalView');
-    const dukandaarView = document.getElementById('dukandaarPortalView');
-    const sbModeEmoji = document.getElementById('sbModeEmoji');
-    const sbModeLabel = document.getElementById('sbModeLabel');
+    const campusSec = document.getElementById('campusStoreSection');
+    const dukandaarSec = document.getElementById('dukandaarPosSection');
 
     if (mode === 'campus') {
-      btnCampus.classList.add('active');
-      btnDukandaar.classList.remove('active');
-      campusView.style.display = 'block';
-      dukandaarView.style.display = 'none';
-      if (sbModeEmoji) sbModeEmoji.textContent = '🎓';
-      if (sbModeLabel) sbModeLabel.textContent = 'Campus Student Mode';
-      this.updateCartUI(); // show cart dock if items exist
+      if (btnCampus) btnCampus.classList.add('active');
+      if (btnDukandaar) btnDukandaar.classList.remove('active');
+      if (campusSec) campusSec.style.display = 'block';
+      if (dukandaarSec) dukandaarSec.style.display = 'none';
+      this.updateCartUI();
     } else {
-      btnDukandaar.classList.add('active');
-      btnCampus.classList.remove('active');
-      dukandaarView.style.display = 'block';
-      campusView.style.display = 'none';
-      if (sbModeEmoji) sbModeEmoji.textContent = '🏪';
-      if (sbModeLabel) sbModeLabel.textContent = 'Vyapar / Dukandaar POS';
-      // Hide student cart dock in dukandaar mode
+      if (btnDukandaar) btnDukandaar.classList.add('active');
+      if (btnCampus) btnCampus.classList.remove('active');
+      if (dukandaarSec) dukandaarSec.style.display = 'block';
+      if (campusSec) campusSec.style.display = 'none';
+      // Hide cart dock
       const dock = document.getElementById('floatingCartDock');
       if (dock) dock.style.display = 'none';
-      // Load Vyapar Data
-      this.loadVyaparData();
+      this.loadVyaparStats();
     }
-
-    // Hide any other subpages
-    document.querySelectorAll('.portal-view:not(#campusPortalView):not(#dukandaarPortalView)').forEach(p => p.style.display = 'none');
   },
 
   // =========================================================================
-  // CAMPUS STORE CATALOG & CART SYSTEM (BLINKIT & SWIGGY)
+  // CAMPUS STORE & CART (STUDENT PSYCHOLOGY)
   // =========================================================================
 
   renderCampusCatalog(category = 'all', searchQuery = '') {
@@ -225,12 +298,8 @@ const app = {
       items = items.filter(item => item.name.toLowerCase().includes(q) || item.pack.toLowerCase().includes(q));
     }
 
-    document.getElementById('productCountLabel').textContent = `(${items.length} Items)`;
-
-    if (items.length === 0) {
-      grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;">No products found matching your search. Try "Maggi", "Red Bull", or "Chips".</div>';
-      return;
-    }
+    const countLabel = document.getElementById('productCountLabel');
+    if (countLabel) countLabel.textContent = `(${items.length} Items)`;
 
     grid.innerHTML = items.map(item => {
       const qty = this.cart[item.id] || 0;
@@ -276,26 +345,26 @@ const app = {
   },
 
   setupCampusCart() {
-    // Category pills
-    document.querySelectorAll('.cat-pill').forEach(pill => {
+    // Category scroll pills
+    document.querySelectorAll('.m-cat-pill').forEach(pill => {
       pill.addEventListener('click', () => {
-        document.querySelectorAll('.cat-pill').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.m-cat-pill').forEach(p => p.classList.remove('active'));
         pill.classList.add('active');
         this.renderCampusCatalog(pill.dataset.cat);
       });
     });
 
-    // Trending chips
-    document.querySelectorAll('.trend-chip').forEach(chip => {
-      chip.addEventListener('click', () => {
-        const query = chip.dataset.search;
-        const searchInput = document.getElementById('globalSearchInput');
-        if (searchInput) searchInput.value = query;
-        this.renderCampusCatalog('all', query);
+    // Trending tags
+    document.querySelectorAll('.m-trend-tag').forEach(tag => {
+      tag.addEventListener('click', () => {
+        const q = tag.dataset.search;
+        const input = document.getElementById('globalSearchInput');
+        if (input) input.value = q;
+        this.renderCampusCatalog('all', q);
       });
     });
 
-    // Global search input
+    // Search input
     const searchInput = document.getElementById('globalSearchInput');
     if (searchInput) {
       searchInput.addEventListener('input', (e) => {
@@ -303,48 +372,39 @@ const app = {
       });
     }
 
-    // Open Cart Drawer triggers
-    const headerCartBtn = document.getElementById('headerCartBtn');
-    if (headerCartBtn) headerCartBtn.addEventListener('click', () => this.openCartDrawer());
-
+    // Floating Cart Dock click -> Open Cart Bottom Sheet
     const dockCheckoutBtn = document.getElementById('dockCheckoutBtn');
-    if (dockCheckoutBtn) dockCheckoutBtn.addEventListener('click', () => this.openCartDrawer());
-
-    const closeDrawerBtn = document.getElementById('closeCartDrawerBtn');
-    if (closeDrawerBtn) closeDrawerBtn.addEventListener('click', () => this.closeCartDrawer());
-
-    const drawerOverlay = document.getElementById('cartDrawerOverlay');
-    if (drawerOverlay) {
-      drawerOverlay.addEventListener('click', (e) => {
-        if (e.target === drawerOverlay) this.closeCartDrawer();
-      });
+    if (dockCheckoutBtn) {
+      dockCheckoutBtn.addEventListener('click', () => this.openCartSheet());
     }
 
-    // Checkout via UPI Button in Drawer
+    const closeCartSheetBtn = document.getElementById('closeCartSheetBtn');
+    if (closeCartSheetBtn) {
+      closeCartSheetBtn.addEventListener('click', () => this.closeCartSheet());
+    }
+
+    // Pay UPI Button in Cart Sheet
     const payUpiBtn = document.getElementById('btnPayUpiCart');
     if (payUpiBtn) {
       payUpiBtn.addEventListener('click', async () => {
         const total = this.getCartTotal();
-        if (total <= 0) {
-          this.showToast('Your cart is empty', 'error');
-          return;
-        }
+        if (total <= 0) return;
 
         try {
-          this.showToast(`Initiating UPI payment order for ₹${total}...`, 'info');
+          this.showToast(`Initiating UPI payment of ₹${total}...`, 'info');
           const res = await api.post('/payments/order', {
             amount: total,
             description: 'Campus 10-Min Quick Order (DesiPay)',
           });
 
-          this.closeCartDrawer();
+          this.closeCartSheet();
           this.cart = {};
           this.updateCartUI();
           this.renderCampusCatalog();
 
-          this.showToast(`UPI Order Created! Razorpay ID: ${res.data.razorpayOrderId}`, 'success');
+          this.showToast(`Order Placed! Razorpay ID: ${res.data.razorpayOrderId}`, 'success');
 
-          // Trigger soundbox voice confirmation if Dukandaar is listening!
+          // Trigger soundbox voice confirmation
           this.speakSoundbox(total);
         } catch (err) {
           this.showToast(err.message, 'error');
@@ -352,11 +412,11 @@ const app = {
       });
     }
 
-    // Student Khata Settle via UPI
+    // Student Settle Khata button
     const settleKhataBtn = document.getElementById('settleKhataUpiBtn');
     if (settleKhataBtn) {
       settleKhataBtn.addEventListener('click', () => {
-        document.getElementById('paymentModal').style.display = 'flex';
+        document.getElementById('paymentSheetOverlay').style.display = 'flex';
         document.getElementById('payAmount').value = 180;
         document.getElementById('payDesc').value = 'Settling Sharma Ji Canteen Khata';
       });
@@ -366,7 +426,10 @@ const app = {
     const splitBillBtn = document.getElementById('splitBillBtn');
     if (splitBillBtn) {
       splitBillBtn.addEventListener('click', () => {
-        this.showToast('Bill Splitter: ₹180 split with 2 roommates = ₹90 per person. Shared on WhatsApp!', 'info');
+        const text = encodeURIComponent(
+          "Bhai, Sharma Ji tuck shop ka canteen bill ₹180 baaki hai. Roommate split: ₹90 per person! UPI kar de: http://localhost:3001"
+        );
+        window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
       });
     }
   },
@@ -375,6 +438,8 @@ const app = {
     this.cart[productId] = (this.cart[productId] || 0) + 1;
     this.updateCartUI();
     this.updateActionBox(productId);
+    // Haptic feedback if on mobile
+    if (navigator.vibrate) navigator.vibrate(30);
   },
 
   updateQty(productId, delta) {
@@ -387,6 +452,7 @@ const app = {
     }
     this.updateCartUI();
     this.updateActionBox(productId);
+    if (navigator.vibrate) navigator.vibrate(20);
   },
 
   updateActionBox(productId) {
@@ -422,30 +488,23 @@ const app = {
     const count = this.getCartCount();
     const total = this.getCartTotal();
 
-    // Topbar Cart Button
-    const headerCount = document.getElementById('headerCartCount');
-    const headerTotal = document.getElementById('headerCartTotal');
-    if (headerCount) headerCount.textContent = `${count} ${count === 1 ? 'item' : 'items'}`;
-    if (headerTotal) headerTotal.textContent = `₹${total}`;
-
-    // Floating Bottom Dock (Blinkit style)
     const dock = document.getElementById('floatingCartDock');
     const dockCount = document.getElementById('dockCartCount');
     const dockTotal = document.getElementById('dockCartTotal');
 
-    if (dock && this.currentMode === 'campus') {
+    if (dock && this.activeTab === 'Store' && this.currentMode === 'campus') {
       if (count > 0) {
         dock.style.display = 'flex';
-        dockCount.textContent = count;
-        dockTotal.textContent = `₹${total.toFixed(2)}`;
+        if (dockCount) dockCount.textContent = count;
+        if (dockTotal) dockTotal.textContent = `₹${total.toFixed(2)}`;
       } else {
         dock.style.display = 'none';
       }
     }
   },
 
-  openCartDrawer() {
-    const overlay = document.getElementById('cartDrawerOverlay');
+  openCartSheet() {
+    const overlay = document.getElementById('cartSheetOverlay');
     const list = document.getElementById('cartItemsList');
     const subtotalEl = document.getElementById('billSubtotal');
     const grandTotalEl = document.getElementById('billGrandTotal');
@@ -457,13 +516,13 @@ const app = {
     });
 
     if (items.length === 0) {
-      list.innerHTML = '<div class="empty-state">Your campus cart is empty. Add Maggi, Red Bull, or snacks!</div>';
+      list.innerHTML = '<div class="empty-state">Cart is empty.</div>';
     } else {
       list.innerHTML = items.map(item => `
-        <div class="drawer-item-row">
-          <div class="dir-item-info">
-            <strong>${item.name}</strong>
-            <span>${item.pack} • ₹${item.price} each</span>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem;background:rgba(0,0,0,0.3);border-radius:8px">
+          <div>
+            <strong style="font-size:0.85rem">${item.name}</strong>
+            <div style="font-size:0.72rem;color:var(--text-muted)">${item.pack} • ₹${item.price} each</div>
           </div>
           <div class="stepper-container">
             <button type="button" class="step-btn" onclick="app.updateQty('${item.id}', -1)">−</button>
@@ -480,17 +539,17 @@ const app = {
     overlay.style.display = 'flex';
   },
 
-  closeCartDrawer() {
-    const overlay = document.getElementById('cartDrawerOverlay');
+  closeCartSheet() {
+    const overlay = document.getElementById('cartSheetOverlay');
     if (overlay) overlay.style.display = 'none';
   },
 
   // =========================================================================
-  // DUKANDAAR / VYAPAR TOOLS (BHARATPE & KHATABOOK)
+  // DUKANDAAR TOOLS & SOUNDBOX (KIRANA UNCLE PSYCHOLOGY)
   // =========================================================================
 
   setupDukandaarTools() {
-    // Test Soundbox Voice button
+    // Soundbox test button
     const testSoundboxBtn = document.getElementById('testSoundboxVoiceBtn');
     if (testSoundboxBtn) {
       testSoundboxBtn.addEventListener('click', () => {
@@ -501,9 +560,7 @@ const app = {
     // Print Standee
     const printStandeeBtn = document.getElementById('printQrStandBtn');
     if (printStandeeBtn) {
-      printStandeeBtn.addEventListener('click', () => {
-        window.print();
-      });
+      printStandeeBtn.addEventListener('click', () => window.print());
     }
 
     // Share QR on WhatsApp
@@ -517,35 +574,45 @@ const app = {
       });
     }
 
-    // Quick Action Buttons
+    // Giant Action Buttons: Payment In & Udhar Out
     const btnPayIn = document.getElementById('btnVyaparPaymentIn');
     if (btnPayIn) {
       btnPayIn.addEventListener('click', () => {
-        document.getElementById('paymentModal').style.display = 'flex';
+        document.getElementById('paymentSheetOverlay').style.display = 'flex';
       });
     }
 
     const btnUdharOut = document.getElementById('btnVyaparUdharOut');
     if (btnUdharOut) {
       btnUdharOut.addEventListener('click', () => {
-        document.getElementById('khataModal').style.display = 'flex';
+        document.getElementById('khataSheetOverlay').style.display = 'flex';
       });
     }
 
-    const refreshLedgerBtn = document.getElementById('dukandaarRefreshLedgerBtn');
-    if (refreshLedgerBtn) {
-      refreshLedgerBtn.addEventListener('click', () => this.loadVyaparData());
+    const createPayTabBtn = document.getElementById('createPaymentTabBtn');
+    if (createPayTabBtn) {
+      createPayTabBtn.addEventListener('click', () => {
+        document.getElementById('paymentSheetOverlay').style.display = 'flex';
+      });
+    }
+
+    const createKhataTabBtn = document.getElementById('createKhataTabBtn');
+    if (createKhataTabBtn) {
+      createKhataTabBtn.addEventListener('click', () => {
+        document.getElementById('khataSheetOverlay').style.display = 'flex';
+      });
     }
   },
 
   /**
-   * DesiPay Smart 4G Soundbox:
-   * Plays realistic payment chime followed by Hindi voice announcement!
+   * Soundbox Voice Announcement:
+   * Chime + Hindi Speech Synthesis
    */
   speakSoundbox(amount = 150) {
-    this.showToast(`🔊 Soundbox Alert: "देसीपे पर ₹${amount} प्राप्त हुए!"`, 'success');
+    this.showToast(`🔊 Soundbox: "देसीपे पर ₹${amount} प्राप्त हुए!"`, 'success');
+    if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
 
-    // 1. Dual-Tone Chime using Web Audio API
+    // Audio chime
     try {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const osc = audioCtx.createOscillator();
@@ -561,7 +628,7 @@ const app = {
       osc.stop(audioCtx.currentTime + 0.4);
     } catch {}
 
-    // 2. Hindi Voice Speech Synthesis
+    // Hindi Voice
     setTimeout(() => {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
@@ -570,7 +637,6 @@ const app = {
         utter.rate = 0.95;
         utter.pitch = 1.05;
 
-        // Try to pick Indian English or Hindi voice
         const voices = window.speechSynthesis.getVoices();
         const indianVoice = voices.find(v => 
           v.lang.includes('hi') || v.lang.includes('IN') || v.name.includes('India') || v.name.includes('Hindi')
@@ -582,15 +648,21 @@ const app = {
     }, 450);
   },
 
-  /**
-   * Load Vyapar / Khatabook Ledger Data with WhatsApp Reminders
-   */
-  async loadVyaparData() {
+  async loadVyaparStats() {
     try {
       const res = await api.get('/khata/dashboard').catch(() => ({ data: {} }));
-      const debtorsBody = document.getElementById('vyaparDebtorsBody');
-      if (!debtorsBody) return;
+      const totalUdhar = res?.data?.totalOutstanding || 5420;
+      const udharEl = document.getElementById('vyaparTotalUdhar');
+      if (udharEl) udharEl.textContent = `₹${totalUdhar.toLocaleString('en-IN')}`;
+    } catch {}
+  },
 
+  async loadKhataTabData() {
+    const list = document.getElementById('vyaparDebtorsMobileList');
+    if (!list) return;
+
+    try {
+      const res = await api.get('/khata/dashboard').catch(() => ({ data: {} }));
       const debtors = res?.data?.topDebtors || [
         { fullName: 'Rahul Verma (Student)', phone: '+919800000002', balance: 450.00, lastDate: 'Today' },
         { fullName: 'Aman Deep (Hostel 3)', phone: '+919800000003', balance: 320.00, lastDate: 'Yesterday' },
@@ -598,7 +670,7 @@ const app = {
         { fullName: 'Vikram Singh (Canteen)', phone: '+919800000005', balance: 650.00, lastDate: '07 Sep' }
       ];
 
-      debtorsBody.innerHTML = debtors.map(d => {
+      list.innerHTML = debtors.map(d => {
         const phoneClean = (d.phone || '+919800000002').replace(/[^0-9]/g, '');
         const reminderText = encodeURIComponent(
           `Namaste ${d.fullName} ji! 🙏\n\nOm Kirana Store par aapka ₹${d.balance.toFixed(2)} ka udhar baaki hai.\nKripya is DesiPay UPI link se payment kar dijiye:\nhttp://localhost:3001\n\nDhanyawad!`
@@ -606,154 +678,102 @@ const app = {
         const waLink = `https://api.whatsapp.com/send?phone=${phoneClean}&text=${reminderText}`;
 
         return `
-          <tr>
-            <td>
-              <strong style="color:#ffffff">${d.fullName}</strong>
-            </td>
-            <td><code style="color:var(--text-muted)">${d.phone || '-'}</code></td>
-            <td><strong style="color:var(--danger);font-size:1rem">₹${d.balance.toFixed(2)}</strong></td>
-            <td>${d.lastDate || 'Recent'}</td>
-            <td>
-              <a href="${waLink}" target="_blank" class="btn-whatsapp-reminder" title="Send pre-filled payment reminder on WhatsApp">
+          <div class="m-khata-card">
+            <div class="mkc-info">
+              <strong>${d.fullName}</strong>
+              <small>${d.phone || 'Phone'} • ${d.lastDate || 'Recent'}</small>
+            </div>
+            <div class="mkc-right">
+              <span class="mkc-amount">₹${d.balance.toFixed(2)}</span>
+              <a href="${waLink}" target="_blank" class="btn-whatsapp-sm">
                 <span>📲</span>
-                <span>WhatsApp Reminder</span>
+                <span>WhatsApp</span>
               </a>
-            </td>
-          </tr>
+            </div>
+          </div>
         `;
       }).join('');
     } catch (err) {
-      console.warn('Vyapar load error:', err.message);
+      list.innerHTML = '<div class="empty-state">No active debtors found.</div>';
+    }
+  },
+
+  async loadPaymentsTabData() {
+    const list = document.getElementById('paymentsMobileList');
+    if (!list) return;
+
+    try {
+      const res = await api.get('/payments?limit=15').catch(() => ({ data: { payments: [] } }));
+      const payments = res?.data?.payments || [];
+
+      if (payments.length === 0) {
+        list.innerHTML = '<div class="empty-state">No payment orders yet.</div>';
+        return;
+      }
+
+      list.innerHTML = payments.map(p => `
+        <div class="m-khata-card">
+          <div class="mkc-info">
+            <strong>₹${p.amount.toFixed(2)}</strong>
+            <small>${new Date(p.createdAt).toLocaleDateString('en-IN')} • ${p.paymentMethod || 'UPI'}</small>
+          </div>
+          <div class="mkc-right">
+            <span class="status status-${p.status.toLowerCase()}">${p.status}</span>
+          </div>
+        </div>
+      `).join('');
+    } catch {
+      list.innerHTML = '<div class="empty-state">Failed to load payments.</div>';
     }
   },
 
   // =========================================================================
-  // NAVIGATION & MODALS
+  // BOTTOM SHEETS & LOCATION
   // =========================================================================
 
-  setupNavigation() {
-    // Sidebar toggle
-    const menuToggle = document.getElementById('menuToggle');
-    const sidebar = document.getElementById('sidebar');
-    const sidebarClose = document.getElementById('sidebarCloseBtn');
+  setupBottomSheets() {
+    // Location Sheet
+    const locBtn = document.getElementById('locationPickerBtn');
+    const locSheet = document.getElementById('locationSheetOverlay');
+    const closeLocBtn = document.getElementById('closeLocationSheetBtn');
 
-    if (menuToggle && sidebar) {
-      menuToggle.addEventListener('click', () => sidebar.classList.toggle('open'));
+    if (locBtn && locSheet) {
+      locBtn.addEventListener('click', () => { locSheet.style.display = 'flex'; });
     }
-    if (sidebarClose && sidebar) {
-      sidebarClose.addEventListener('click', () => sidebar.classList.remove('open'));
+    if (closeLocBtn && locSheet) {
+      closeLocBtn.addEventListener('click', () => { locSheet.style.display = 'none'; });
     }
 
-    // Sidebar navigation items
-    document.querySelectorAll('.nav-item').forEach(item => {
+    document.querySelectorAll('.location-item').forEach(item => {
       item.addEventListener('click', () => {
-        const page = item.dataset.page;
-        if (sidebar) sidebar.classList.remove('open');
-
-        if (page === 'home') {
-          this.switchPortalMode(this.currentMode);
-        } else if (page === 'soundbox' || page === 'qrstand') {
-          this.switchPortalMode('dukandaar');
-        } else {
-          this.navigateToSubpage(page);
-        }
+        document.querySelectorAll('.location-item').forEach(i => i.classList.remove('active'));
+        item.classList.add('active');
+        const loc = item.dataset.loc;
+        const textEl = document.getElementById('currentLocationText');
+        if (textEl) textEl.textContent = `${loc} ▾`;
+        if (locSheet) locSheet.style.display = 'none';
+        this.showToast(`Location: ${loc}`, 'success');
       });
     });
 
-    // Header Auth Button
-    const headerAuthBtn = document.getElementById('headerAuthBtn');
-    if (headerAuthBtn) {
-      headerAuthBtn.addEventListener('click', () => {
-        if (api.isAuthenticated()) {
-          this.navigateToSubpage('auth');
-        } else {
-          this.navigateToSubpage('auth');
-        }
-      });
-    }
-
-    // Header JWT Pill -> Open JWT Cockpit Modal
-    const topbarJwtPill = document.getElementById('topbarJwtPill');
-    if (topbarJwtPill) {
-      topbarJwtPill.addEventListener('click', () => {
-        auth.renderJwtInspector();
-        document.getElementById('jwtCockpitModal').style.display = 'flex';
-      });
-    }
-
-    const sidebarJwtBtn = document.getElementById('sidebarJwtBtn');
-    if (sidebarJwtBtn) {
-      sidebarJwtBtn.addEventListener('click', () => {
-        auth.renderJwtInspector();
-        document.getElementById('jwtCockpitModal').style.display = 'flex';
-      });
-    }
-
-    // Logout Button
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', async () => {
-        try { await api.post('/auth/logout'); } catch {}
-        api.setToken(null);
-        this.currentUser = null;
-        this.updateAuthUI(null);
-        this.switchPortalMode('campus');
-        this.showToast('Signed out', 'info');
-      });
-    }
-
-    // Close Modals
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+    // Close on overlay backdrop tap
+    document.querySelectorAll('.bottom-sheet-overlay').forEach(overlay => {
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) overlay.style.display = 'none';
       });
     });
 
-    document.querySelectorAll('[data-close]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const target = document.getElementById(btn.dataset.close);
-        if (target) target.style.display = 'none';
+    const closePaySheet = document.getElementById('closePaymentSheetBtn');
+    if (closePaySheet) {
+      closePaySheet.addEventListener('click', () => {
+        document.getElementById('paymentSheetOverlay').style.display = 'none';
       });
-    });
-  },
-
-  navigateToSubpage(page) {
-    document.getElementById('campusPortalView').style.display = 'none';
-    document.getElementById('dukandaarPortalView').style.display = 'none';
-    const dock = document.getElementById('floatingCartDock');
-    if (dock) dock.style.display = 'none';
-
-    document.querySelectorAll('.portal-view:not(#campusPortalView):not(#dukandaarPortalView)').forEach(p => p.style.display = 'none');
-
-    const target = document.getElementById(`page-${page}`);
-    if (target) target.style.display = 'block';
-
-    // Load subpage data
-    switch (page) {
-      case 'payments': payments.load(); break;
-      case 'khata': khata.load(); break;
-      case 'inventory': inventory.load(); break;
-      case 'notifications': notifications.load(); break;
     }
-  },
 
-  setupLocationPicker() {
-    const locBtn = document.getElementById('locationPickerBtn');
-    const locModal = document.getElementById('locationModal');
-    if (locBtn && locModal) {
-      locBtn.addEventListener('click', () => {
-        locModal.style.display = 'flex';
-      });
-
-      document.querySelectorAll('.location-item').forEach(item => {
-        item.addEventListener('click', () => {
-          document.querySelectorAll('.location-item').forEach(i => i.classList.remove('active'));
-          item.classList.add('active');
-          const locName = item.dataset.loc;
-          document.getElementById('currentLocationText').textContent = `${locName} ▾`;
-          locModal.style.display = 'none';
-          this.showToast(`Delivery location updated: ${locName}`, 'success');
-        });
+    const closeKhataSheet = document.getElementById('closeKhataSheetBtn');
+    if (closeKhataSheet) {
+      closeKhataSheet.addEventListener('click', () => {
+        document.getElementById('khataSheetOverlay').style.display = 'none';
       });
     }
   },
@@ -762,60 +782,34 @@ const app = {
     this.currentUser = user;
     this.updateAuthUI(user);
 
-    // Auto-switch mode based on role
     if (user.role === 'SHOPKEEPER') {
       this.switchPortalMode('dukandaar');
-      this.showToast(`Dukandaar Mode Active: Welcome ${user.fullName}!`, 'success');
+      this.showToast(`Dukandaar Mode: ${user.fullName}`, 'success');
     } else {
       this.switchPortalMode('campus');
-      this.showToast(`Campus Store Active: Welcome ${user.fullName}!`, 'success');
+      this.showToast(`Campus Store: ${user.fullName}`, 'success');
     }
+
+    this.switchTab('Store');
   },
 
   updateAuthUI(user) {
-    const headerAuthBtn = document.getElementById('headerAuthBtn');
-    const userInfo = document.getElementById('userInfo');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const topbarPill = document.getElementById('topbarJwtPill');
     const topbarJwtText = document.getElementById('topbarJwtText');
+    const topbarPill = document.getElementById('topbarJwtPill');
 
     if (user && api.isAuthenticated()) {
-      if (headerAuthBtn) headerAuthBtn.textContent = user.fullName.split(' ')[0];
-      if (userInfo) {
-        document.getElementById('userName').textContent = user.fullName;
-        document.getElementById('userRole').textContent = user.role;
-        document.getElementById('userAvatar').textContent = user.fullName.charAt(0).toUpperCase();
-        userInfo.style.display = 'flex';
-      }
-      if (logoutBtn) logoutBtn.style.display = 'inline-flex';
-
-      if (topbarPill && topbarJwtText) {
-        topbarPill.classList.remove('inactive');
-        topbarJwtText.textContent = `JWT Active (15m)`;
-      }
+      if (topbarJwtText) topbarJwtText.textContent = `JWT Active`;
+      if (topbarPill) topbarPill.classList.remove('inactive');
     } else {
-      if (headerAuthBtn) headerAuthBtn.textContent = 'Sign In';
-      if (userInfo) userInfo.style.display = 'none';
-      if (logoutBtn) logoutBtn.style.display = 'none';
-
-      if (topbarPill && topbarJwtText) {
-        topbarPill.classList.add('inactive');
-        topbarJwtText.textContent = 'JWT Inactive';
-      }
+      if (topbarJwtText) topbarJwtText.textContent = `JWT Inactive`;
+      if (topbarPill) topbarPill.classList.add('inactive');
     }
   },
 
   async checkApiStatus() {
-    const pill = document.getElementById('topbarJwtPill');
     try {
-      const res = await fetch('http://localhost:3000/health');
-      const data = await res.json();
-      if (data?.success) {
-        // healthy
-      }
-    } catch {
-      console.warn('Backend API appears offline.');
-    }
+      await fetch('http://localhost:3000/health');
+    } catch {}
   },
 
   showToast(message, type = 'info') {
@@ -830,9 +824,9 @@ const app = {
 
     setTimeout(() => {
       toast.style.opacity = '0';
-      toast.style.transform = 'translateX(50px)';
-      setTimeout(() => toast.remove(), 300);
-    }, 4000);
+      toast.style.transform = 'translateY(-10px)';
+      setTimeout(() => toast.remove(), 250);
+    }, 3500);
   },
 };
 
