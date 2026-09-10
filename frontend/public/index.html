@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="theme-color" content="#080d1a">
+  <meta name="theme-color" content="#f8fafc">
   <meta name="description" content="DesiPay — Mobile-First 10-Min Campus Quick Commerce & Dukandaar Smart Khata">
   <title>DesiPay — Mobile Quick Commerce & Smart Khata</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -284,9 +284,9 @@
             <p>जब भी कोई ग्राहक फोनपे, गूगलपे या पेटीएम से भुगतान करेगा, साउंडबॉक्स तुरंत आवाज में बताएगा।</p>
 
             <!-- Interactive Soundbox Simulator Controls -->
-            <div class="soundbox-quick-controls" style="background:rgba(0,0,0,0.3);padding:0.75rem;border-radius:10px;margin:0.8rem 0;border:1px solid var(--border-color)">
+            <div class="soundbox-quick-controls">
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
-                <span style="font-size:0.75rem;color:var(--text-muted)">Amount:</span>
+                <span style="font-size:0.75rem;color:var(--text-secondary);font-weight:600">Amount:</span>
                 <div class="sqc-chips" style="display:flex;gap:0.3rem">
                   <button type="button" class="btn btn-xs sb-amount-chip active" data-amt="150">₹150</button>
                   <button type="button" class="btn btn-xs sb-amount-chip" data-amt="250">₹250</button>
@@ -295,14 +295,14 @@
                 </div>
               </div>
               <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
-                <span style="font-size:0.75rem;color:var(--text-muted)">Language:</span>
+                <span style="font-size:0.75rem;color:var(--text-secondary);font-weight:600">Language:</span>
                 <div class="sqc-chips" style="display:flex;gap:0.3rem">
                   <button type="button" class="btn btn-xs sb-lang-chip active" data-lang="hi-IN">🇮🇳 हिंदी</button>
                   <button type="button" class="btn btn-xs sb-lang-chip" data-lang="en-IN">🇬🇧 English</button>
                 </div>
               </div>
               <div style="display:flex;align-items:center;justify-content:space-between">
-                <span style="font-size:0.75rem;color:var(--text-muted)">Volume: <strong id="soundboxVolLabel" style="color:var(--accent-cyan)">85%</strong></span>
+                <span style="font-size:0.75rem;color:var(--text-secondary);font-weight:600">Volume: <strong id="soundboxVolLabel" style="color:var(--accent-cyan)">85%</strong></span>
                 <div style="display:flex;gap:0.3rem">
                   <button type="button" class="btn btn-xs btn-outline" id="btnSbVolDown">🔈 −</button>
                   <button type="button" class="btn btn-xs btn-outline" id="btnSbVolUp">🔊 +</button>
@@ -320,7 +320,7 @@
         <!-- Recent Soundbox Announcements History -->
         <div class="m-device-card" style="margin-top:1rem">
           <div class="tab-header-bar" style="margin-bottom:0.5rem">
-            <h4 style="font-size:0.85rem;color:#ffffff;margin:0">🔊 Live Broadcast History</h4>
+            <h4 style="font-size:0.88rem;color:var(--text-primary);font-weight:800;margin:0">🔊 Live Broadcast History</h4>
             <button type="button" class="btn btn-xs btn-outline" id="refreshVoiceHistoryBtn">🔄 Refresh</button>
           </div>
           <div id="soundboxHistoryList" style="display:flex;flex-direction:column;gap:0.4rem">
@@ -407,7 +407,7 @@
           <span>Manual Email & Password Sign In / Sign Up ▾</span>
         </button>
 
-        <div id="customAuthContainer" style="display:none;background:rgba(18,26,47,0.85);border:1px solid var(--border-color);border-radius:12px;padding:1rem;margin-top:0.75rem">
+        <div id="customAuthContainer" style="display:none;background:#ffffff;border:1px solid var(--border-light);border-radius:14px;padding:1.1rem;margin-top:0.75rem;box-shadow:var(--shadow-card)">
           <div class="auth-tabs" style="display:flex;gap:0.5rem;margin-bottom:1rem">
             <button type="button" class="btn btn-xs auth-tab active" data-tab="login" style="flex:1">Sign In</button>
             <button type="button" class="btn btn-xs auth-tab" data-tab="register" style="flex:1">Create Account</button>
@@ -417,12 +417,12 @@
           <form id="loginForm">
             <div class="form-group" style="margin-bottom:0.75rem">
               <label for="loginEmail" style="font-size:0.75rem">Email Address</label>
-              <input type="email" id="loginEmail" placeholder="customer.live@desipay.com" value="customer.live@desipay.com" required style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+              <input type="email" id="loginEmail" placeholder="customer.live@desipay.com" value="customer.live@desipay.com" required style="width:100%;padding:0.55rem 0.8rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
             </div>
             <div class="form-group" style="margin-bottom:0.75rem;position:relative">
               <label for="loginPassword" style="font-size:0.75rem">Password</label>
               <div style="display:flex;gap:0.3rem">
-                <input type="password" id="loginPassword" placeholder="Password@123" value="Password@123" required style="flex:1;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+                <input type="password" id="loginPassword" placeholder="Password@123" value="Password@123" required style="flex:1;padding:0.55rem 0.8rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
                 <button type="button" class="btn btn-sm btn-outline" id="togglePasswordBtn">👁️</button>
               </div>
             </div>
@@ -434,19 +434,19 @@
           <form id="registerForm" style="display:none">
             <div class="form-group" style="margin-bottom:0.6rem">
               <label for="regName" style="font-size:0.75rem">Full Name</label>
-              <input type="text" id="regName" placeholder="Aakash Kumar" required style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+              <input type="text" id="regName" placeholder="Aakash Kumar" required style="width:100%;padding:0.55rem 0.8rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
             </div>
             <div class="form-group" style="margin-bottom:0.6rem">
               <label for="regEmail" style="font-size:0.75rem">Email</label>
-              <input type="email" id="regEmail" placeholder="aakash@desipay.com" required style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+              <input type="email" id="regEmail" placeholder="aakash@desipay.com" required style="width:100%;padding:0.55rem 0.8rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
             </div>
             <div class="form-group" style="margin-bottom:0.6rem">
               <label for="regPhone" style="font-size:0.75rem">Phone (+91)</label>
-              <input type="tel" id="regPhone" placeholder="+919800000099" required style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+              <input type="tel" id="regPhone" placeholder="+919800000099" required style="width:100%;padding:0.55rem 0.8rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
             </div>
             <div class="form-group" style="margin-bottom:0.6rem">
               <label for="regRole" style="font-size:0.75rem">Account Role</label>
-              <select id="regRole" style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+              <select id="regRole" style="width:100%;padding:0.55rem 0.8rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
                 <option value="CUSTOMER">Campus Student (Customer)</option>
                 <option value="SHOPKEEPER">Dukandaar Uncle (Shopkeeper)</option>
                 <option value="B2B_CUSTOMER">B2B Wholesale Merchant</option>
@@ -454,11 +454,11 @@
             </div>
             <div class="form-group" style="margin-bottom:0.6rem">
               <label for="regPassword" style="font-size:0.75rem">Password</label>
-              <input type="password" id="regPassword" placeholder="Min 8 chars, 1 uppercase, 1 special" required style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+              <input type="password" id="regPassword" placeholder="Min 8 chars, 1 uppercase, 1 special" required style="width:100%;padding:0.55rem 0.8rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
             </div>
             <div class="form-group" style="margin-bottom:0.75rem">
               <label for="regConfirm" style="font-size:0.75rem">Confirm Password</label>
-              <input type="password" id="regConfirm" placeholder="Re-type password" required style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+              <input type="password" id="regConfirm" placeholder="Re-type password" required style="width:100%;padding:0.55rem 0.8rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
             </div>
             <button type="submit" class="btn btn-primary btn-full">Register Account</button>
             <div class="form-error" id="registerError" style="color:var(--danger);font-size:0.75rem;margin-top:0.4rem"></div>
@@ -756,7 +756,7 @@
           </p>
           <div class="form-group">
             <label for="customJwtInput">Bearer Token (RS256 JWT)</label>
-            <textarea id="customJwtInput" rows="4" style="width:100%;font-family:monospace;font-size:0.75rem;padding:0.6rem;background:rgba(0,0,0,0.5);border:1px solid var(--border-color);border-radius:8px;color:#fff;box-sizing:border-box" placeholder="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."></textarea>
+            <textarea id="customJwtInput" rows="4" style="width:100%;font-family:monospace;font-size:0.75rem;padding:0.6rem;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box" placeholder="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."></textarea>
           </div>
           <div style="display:flex;gap:0.5rem;margin-top:1rem">
             <button type="button" class="btn btn-primary btn-full" id="applyCustomJwtBtn">Verify & Apply Token</button>

@@ -23,6 +23,7 @@ const CAMPUS_CATALOG = [
     discount: '14% OFF',
     category: 'maggi',
     emoji: '🍜',
+    image: '/assets/products/maggi.jpg',
     isVeg: true,
   },
   {
@@ -34,6 +35,7 @@ const CAMPUS_CATALOG = [
     discount: '8% OFF',
     category: 'drinks',
     emoji: '🥤',
+    image: '/assets/products/redbull.jpg',
     isVeg: true,
   },
   {
@@ -45,6 +47,7 @@ const CAMPUS_CATALOG = [
     discount: 'HOT',
     category: 'drinks',
     emoji: '⚡',
+    image: '/assets/products/sting.jpg',
     isVeg: true,
   },
   {
@@ -56,6 +59,7 @@ const CAMPUS_CATALOG = [
     discount: 'TOP',
     category: 'munchies',
     emoji: '🍿',
+    image: '/assets/products/lays.jpg',
     isVeg: true,
   },
   {
@@ -67,6 +71,7 @@ const CAMPUS_CATALOG = [
     discount: '4% OFF',
     category: 'dairy',
     emoji: '🥛',
+    image: '/assets/products/amul_milk.jpg',
     isVeg: true,
   },
   {
@@ -78,6 +83,7 @@ const CAMPUS_CATALOG = [
     discount: '13% OFF',
     category: 'stationery',
     emoji: '📚',
+    image: '/assets/products/notebook.jpg',
     isVeg: true,
   },
   {
@@ -89,6 +95,7 @@ const CAMPUS_CATALOG = [
     discount: 'CAMPUS',
     category: 'maggi',
     emoji: '🥢',
+    image: '/assets/products/waiwai.jpg',
     isVeg: true,
   },
   {
@@ -100,6 +107,7 @@ const CAMPUS_CATALOG = [
     discount: '10% OFF',
     category: 'chocolates',
     emoji: '🍫',
+    image: '/assets/products/silk.jpg',
     isVeg: true,
   },
 ];
@@ -148,15 +156,15 @@ const app = {
     this.checkApiStatus();
 
     // Check existing authentication
-    if (api.isAuthenticated()) {
+    if (window.api?.isAuthenticated?.()) {
       try {
-        const result = await api.get('/auth/me');
+        const result = await window.api.get('/auth/me');
         if (result?.data?.user) {
           this.onLogin(result.data.user);
           return;
         }
       } catch {
-        api.setToken(null);
+        window.api.setToken(null);
       }
     }
 
@@ -321,7 +329,9 @@ const app = {
 
           <div class="product-visual">
             <div class="veg-indicator"><span class="veg-dot"></span></div>
-            <span>${item.emoji}</span>
+            ${item.image 
+              ? `<img src="${item.image}" alt="${item.name}" class="product-packshot-img" loading="lazy" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><span class="product-fallback-emoji" style="display:none">${item.emoji}</span>`
+              : `<span class="product-fallback-emoji">${item.emoji}</span>`}
           </div>
 
           <div class="product-info">
@@ -554,12 +564,15 @@ const app = {
       list.innerHTML = '<div class="empty-state">Cart is empty.</div>';
     } else {
       list.innerHTML = items.map(item => `
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.6rem;background:rgba(0,0,0,0.3);border-radius:8px">
-          <div>
-            <strong style="font-size:0.85rem">${item.name}</strong>
-            <div style="font-size:0.72rem;color:var(--text-muted)">${item.pack} • ₹${item.price} each</div>
+        <div class="cart-item-row" style="display:flex;align-items:center;justify-content:space-between;gap:0.75rem;padding:0.65rem 0.85rem;background:var(--bg-card);border:1px solid var(--border-color);border-radius:12px">
+          <div style="display:flex;align-items:center;gap:0.65rem;overflow:hidden">
+            ${item.image ? `<img src="${item.image}" alt="${item.name}" style="width:36px;height:36px;object-fit:contain;background:#fff;border-radius:8px;padding:2px;border:1px solid rgba(0,0,0,0.08);flex-shrink:0">` : `<span style="font-size:1.3rem;flex-shrink:0">${item.emoji}</span>`}
+            <div style="overflow:hidden">
+              <strong style="font-size:0.82rem;color:var(--text-primary);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${item.name}</strong>
+              <div style="font-size:0.72rem;color:var(--text-secondary)">${item.pack} • <strong style="color:var(--text-primary)">₹${item.price}</strong></div>
+            </div>
           </div>
-          <div class="stepper-container">
+          <div class="stepper-container" style="flex-shrink:0">
             <button type="button" class="step-btn" onclick="app.updateQty('${item.id}', -1)">−</button>
             <span class="step-count">${item.qty}</span>
             <button type="button" class="step-btn" onclick="app.updateQty('${item.id}', 1)">+</button>
