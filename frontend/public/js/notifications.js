@@ -4,16 +4,19 @@
 
 const notifications = {
   init() {
-    document.getElementById('markAllReadBtn').addEventListener('click', async () => {
-      try {
-        await api.patch('/notifications/read-all');
-        app.showToast('All marked as read', 'success');
-        this.load();
-        this.updateBadge();
-      } catch (error) {
-        app.showToast(error.message, 'error');
-      }
-    });
+    const markBtn = document.getElementById('markAllReadBtn');
+    if (markBtn) {
+      markBtn.addEventListener('click', async () => {
+        try {
+          await api.patch('/notifications/read-all');
+          app.showToast('All marked as read', 'success');
+          this.load();
+          this.updateBadge();
+        } catch (error) {
+          app.showToast(error.message, 'error');
+        }
+      });
+    }
   },
 
   async load() {
@@ -67,3 +70,5 @@ const notifications = {
     }
   },
 };
+
+window.notifications = notifications;

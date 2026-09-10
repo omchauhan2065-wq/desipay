@@ -114,12 +114,14 @@ const app = {
   soundboxVolume: 85,
 
   async init() {
-    // Initialize sub-modules
-    auth.init();
-    payments.init();
-    khata.init();
-    inventory.init();
-    notifications.init();
+    console.log('🚀 Initializing DesiPay Mobile Platform...');
+
+    // Initialize sub-modules safely with individual try/catch
+    try { if (window.auth?.init) auth.init(); } catch (e) { console.warn('auth init warning:', e); }
+    try { if (window.payments?.init) payments.init(); } catch (e) { console.warn('payments init warning:', e); }
+    try { if (window.khata?.init) khata.init(); } catch (e) { console.warn('khata init warning:', e); }
+    try { if (window.inventory?.init) inventory.init(); } catch (e) { console.warn('inventory init warning:', e); }
+    try { if (window.notifications?.init) notifications.init(); } catch (e) { console.warn('notifications init warning:', e); }
 
     // Mobile Notch Live Clock
     this.startMobileClock();
@@ -139,6 +141,8 @@ const app = {
 
     // Bottom Sheets & Location Picker
     this.setupBottomSheets();
+
+    console.log('✅ DesiPay Mobile Platform Initialized Successfully!');
 
     // API Status Check
     this.checkApiStatus();
@@ -995,5 +999,12 @@ const app = {
   },
 };
 
-// Initialize Application
-document.addEventListener('DOMContentLoaded', () => app.init());
+// Global window binding
+window.app = app;
+
+// Initialize Application robustly (works whether DOM is loading, interactive, or complete)
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => app.init());
+} else {
+  app.init();
+}

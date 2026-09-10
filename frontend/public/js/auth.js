@@ -453,3 +453,5 @@ const auth = {
     }
   },
 };
+
+window.auth = auth;

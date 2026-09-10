@@ -8,16 +8,18 @@ const dashboard = {
       // Load payment history for revenue
       const payments = await api.get('/payments?limit=100&status=COMPLETED').catch(() => ({ data: { payments: [] } }));
       const totalRevenue = (payments?.data?.payments || []).reduce((sum, p) => sum + p.amount, 0);
-      document.getElementById('statRevenue').textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
+      const revEl = document.getElementById('statRevenue');
+      if (revEl) revEl.textContent = `₹${totalRevenue.toLocaleString('en-IN')}`;
 
       // Load khata dashboard
       const khata = await api.get('/khata/dashboard').catch(() => ({ data: {} }));
       if (khata?.data) {
-        document.getElementById('statUdhar').textContent = `₹${(khata.data.totalOutstanding || 0).toLocaleString('en-IN')}`;
+        const udharEl = document.getElementById('statUdhar');
+        if (udharEl) udharEl.textContent = `₹${(khata.data.totalOutstanding || 0).toLocaleString('en-IN')}`;
 
         // Top debtors
         const debtorsBody = document.getElementById('debtorsBody');
-        if (khata.data.topDebtors?.length) {
+        if (debtorsBody && khata.data.topDebtors?.length) {
           debtorsBody.innerHTML = khata.data.topDebtors.map(d => `
             <tr>
               <td>${d.fullName || 'Unknown'}</td>
@@ -29,7 +31,7 @@ const dashboard = {
 
         // Recent entries as transactions
         const txBody = document.getElementById('recentTxBody');
-        if (khata.data.recentEntries?.length) {
+        if (txBody && khata.data.recentEntries?.length) {
           txBody.innerHTML = khata.data.recentEntries.map(e => `
             <tr>
               <td>${new Date(e.createdAt).toLocaleDateString('en-IN')}</td>
@@ -43,12 +45,16 @@ const dashboard = {
 
       // Load inventory stats
       const inv = await api.get('/inventory/products?limit=1').catch(() => ({ data: { total: 0 } }));
-      document.getElementById('statProducts').textContent = inv?.data?.total || 0;
+      const prodEl = document.getElementById('statProducts');
+      if (prodEl) prodEl.textContent = inv?.data?.total || 0;
 
       const lowStock = await api.get('/inventory/low-stock').catch(() => ({ data: { count: 0 } }));
-      document.getElementById('statAlerts').textContent = lowStock?.data?.count || 0;
+      const alertEl = document.getElementById('statAlerts');
+      if (alertEl) alertEl.textContent = lowStock?.data?.count || 0;
     } catch (error) {
       console.warn('Dashboard load error:', error.message);
     }
   },
 };
+
+window.dashboard = dashboard;

@@ -109,3 +109,5 @@ const payments = {
     }, 600);
   },
 };
+
+window.payments = payments;

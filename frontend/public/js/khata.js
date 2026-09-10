@@ -101,3 +101,5 @@ const khata = {
     }, 500);
   },
 };
+
+window.khata = khata;

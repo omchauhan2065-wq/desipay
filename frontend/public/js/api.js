@@ -162,3 +162,5 @@ const api = {
   patch(path, body) { return this.request('PATCH', path, body); },
   del(path) { return this.request('DELETE', path); },
 };
+
+window.api = api;

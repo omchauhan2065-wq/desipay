@@ -4,54 +4,69 @@
 
 const inventory = {
   init() {
-    document.getElementById('addProductBtn').addEventListener('click', () => {
-      document.getElementById('productModal').style.display = 'flex';
-    });
+    const addBtn = document.getElementById('addProductBtn');
+    if (addBtn) {
+      addBtn.addEventListener('click', () => {
+        const modal = document.getElementById('productModal');
+        if (modal) modal.style.display = 'flex';
+      });
+    }
 
-    document.querySelector('[data-close="productModal"]').addEventListener('click', () => {
-      document.getElementById('productModal').style.display = 'none';
-    });
+    const closeBtn = document.querySelector('[data-close="productModal"]');
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        const modal = document.getElementById('productModal');
+        if (modal) modal.style.display = 'none';
+      });
+    }
 
-    document.getElementById('addProductForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const errEl = document.getElementById('productError');
-      errEl.textContent = '';
+    const form = document.getElementById('addProductForm');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errEl = document.getElementById('productError');
+        if (errEl) errEl.textContent = '';
 
-      try {
-        await api.post('/inventory/products', {
-          name: document.getElementById('prodName').value,
-          sku: document.getElementById('prodSku').value,
-          barcode: document.getElementById('prodBarcode').value || undefined,
-          category: document.getElementById('prodCategory').value,
-          price: {
-            mrp: parseFloat(document.getElementById('prodMrp').value),
-            sellingPrice: parseFloat(document.getElementById('prodSelling').value),
-            costPrice: parseFloat(document.getElementById('prodCost').value),
-          },
-          stock: {
-            current: parseInt(document.getElementById('prodStock').value) || 0,
-            minimum: 5,
-            maximum: 1000,
-          },
-          unit: document.getElementById('prodUnit').value,
-          gstRate: parseInt(document.getElementById('prodGst').value),
-        });
+        try {
+          await api.post('/inventory/products', {
+            name: document.getElementById('prodName')?.value,
+            sku: document.getElementById('prodSku')?.value,
+            barcode: document.getElementById('prodBarcode')?.value || undefined,
+            category: document.getElementById('prodCategory')?.value,
+            price: {
+              mrp: parseFloat(document.getElementById('prodMrp')?.value || '0'),
+              sellingPrice: parseFloat(document.getElementById('prodSelling')?.value || '0'),
+              costPrice: parseFloat(document.getElementById('prodCost')?.value || '0'),
+            },
+            stock: {
+              current: parseInt(document.getElementById('prodStock')?.value || '0') || 0,
+              minimum: 5,
+              maximum: 1000,
+            },
+            unit: document.getElementById('prodUnit')?.value,
+            gstRate: parseInt(document.getElementById('prodGst')?.value || '0'),
+          });
 
-        document.getElementById('productModal').style.display = 'none';
-        document.getElementById('addProductForm').reset();
-        app.showToast('Product added!', 'success');
-        this.load();
-      } catch (error) {
-        errEl.textContent = error.message;
-      }
-    });
+          const modal = document.getElementById('productModal');
+          if (modal) modal.style.display = 'none';
+          form.reset();
+          app.showToast('Product added!', 'success');
+          this.load();
+        } catch (error) {
+          if (errEl) errEl.textContent = error.message;
+        }
+      });
+    }
 
     // Search
-    let searchTimeout;
-    document.getElementById('inventorySearch').addEventListener('input', (e) => {
-      clearTimeout(searchTimeout);
-      searchTimeout = setTimeout(() => this.load(e.target.value), 300);
-    });
+    const searchInput = document.getElementById('inventorySearch');
+    if (searchInput) {
+      let searchTimeout;
+      searchInput.addEventListener('input', (e) => {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => this.load(e.target.value), 300);
+      });
+    }
   },
 
   async load(search = '') {
@@ -109,3 +124,5 @@ const inventory = {
     }
   },
 };
+
+window.inventory = inventory;
