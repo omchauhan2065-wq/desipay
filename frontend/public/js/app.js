@@ -296,6 +296,11 @@ const app = {
       if (dock) dock.style.display = 'none';
       this.loadVyaparStats();
     }
+
+    // Trigger Khata dual-persona view update
+    if (window.khata?.onModeSwitch) {
+      window.khata.onModeSwitch(mode);
+    }
   },
 
   // =========================================================================
@@ -461,9 +466,11 @@ const app = {
     const settleKhataBtn = document.getElementById('settleKhataUpiBtn');
     if (settleKhataBtn) {
       settleKhataBtn.addEventListener('click', () => {
-        document.getElementById('paymentSheetOverlay').style.display = 'flex';
-        document.getElementById('payAmount').value = 180;
-        document.getElementById('payDesc').value = 'Settling Sharma Ji Canteen Khata';
+        if (window.khata?.openStudentPayModal) {
+          window.khata.openStudentPayModal('shop-om');
+        } else {
+          document.getElementById('paymentSheetOverlay').style.display = 'flex';
+        }
       });
     }
 
@@ -471,10 +478,14 @@ const app = {
     const splitBillBtn = document.getElementById('splitBillBtn');
     if (splitBillBtn) {
       splitBillBtn.addEventListener('click', () => {
-        const text = encodeURIComponent(
-          "Bhai, Sharma Ji tuck shop ka canteen bill ₹180 baaki hai. Roommate split: ₹90 per person! UPI kar de: http://localhost:3001"
-        );
-        window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+        if (window.khata?.openRoommateSplitModal) {
+          window.khata.openRoommateSplitModal('shop-om');
+        } else {
+          const text = encodeURIComponent(
+            "Bhai, Om Kirana Store ka canteen khata split: UPI kar de!"
+          );
+          window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+        }
       });
     }
   },
@@ -833,8 +844,12 @@ const app = {
 
   async loadKhataTabData() {
     if (window.khata) {
-      if (window.khata.renderCustomerList) window.khata.renderCustomerList();
-      if (window.khata.updateMetrics) window.khata.updateMetrics();
+      if (window.khata.onModeSwitch) {
+        window.khata.onModeSwitch(this.currentMode || 'campus');
+      } else {
+        if (window.khata.renderCustomerList) window.khata.renderCustomerList();
+        if (window.khata.updateMetrics) window.khata.updateMetrics();
+      }
     }
   },
 

@@ -99,21 +99,21 @@
         
         <!-- CAMPUS STORE VIEW (STUDENT / YOUTH PSYCHOLOGY) -->
         <div class="campus-store-section" id="campusStoreSection">
-          <!-- Student Running Khata Banner -->
-          <div class="m-student-khata-card">
+          <!-- Student Running Khata Banner (ERP Linked to Om Kirana Store) -->
+          <div class="m-student-khata-card" id="studentKhataBanner">
             <div class="msk-header">
               <span class="msk-icon">📒</span>
               <div class="msk-info">
-                <h4>Sharma Ji Tuck Shop Khata</h4>
-                <small>Campus Canteen Udhar Tab</small>
+                <h4 id="studentKhataShopName">Om Kirana Store Khata</h4>
+                <small id="studentKhataShopDesc">Campus Tuck Shop Udhar Tab • Rahul Verma</small>
               </div>
-              <span class="msk-badge">Pending</span>
+              <span class="msk-badge" id="studentKhataStatusBadge">Pending</span>
             </div>
             <div class="msk-bottom">
-              <span class="msk-amount">₹180.00</span>
+              <span class="msk-amount" id="studentKhataAmount">₹830.00</span>
               <div class="msk-btns">
-                <button class="btn btn-sm btn-primary btn-m-settle" id="settleKhataUpiBtn">⚡ Pay UPI</button>
-                <button class="btn btn-sm btn-outline" id="splitBillBtn">👥 Split</button>
+                <button type="button" class="btn btn-sm btn-primary btn-m-settle" id="settleKhataUpiBtn">⚡ Pay UPI</button>
+                <button type="button" class="btn btn-sm btn-outline" id="splitBillBtn">👥 Split</button>
               </div>
             </div>
           </div>
@@ -250,52 +250,115 @@
 
       </div>
 
-      <!-- TAB 2: ADVANCED KHATA LEDGER (CUSTOMER-WISE STATEMENT & SETTLEMENT) -->
+      <!-- TAB 2: ADVANCED KHATA LEDGER (DUAL PERSONA: CUSTOMER DUKAN KHATA vs VYAPAR KHATABAHI) -->
       <div class="tab-content" id="tabContentKhata" style="display:none">
-        <div class="tab-header-bar">
-          <div>
-            <h2>डिजिटल खाता बही (Smart Khata)</h2>
-            <small style="color:var(--text-secondary);font-size:0.72rem">ग्राहक-वार पासबुक, उधारी और जमा खाता</small>
+
+        <!-- ================================================================= -->
+        <!-- 1. CUSTOMER / STUDENT PERSONA: "मेरा दुकान खाता (My Dukan Udhar)" -->
+        <!-- ================================================================= -->
+        <div class="khata-persona-section" id="customerKhataSection">
+          <div class="tab-header-bar">
+            <div>
+              <div style="display:flex;align-items:center;gap:0.4rem">
+                <h2>मेरा दुकान खाता (My Udhar Tab)</h2>
+                <span style="font-size:0.62rem;font-weight:800;padding:2px 6px;border-radius:6px;background:#e0f2fe;color:#0369a1">🎓 छात्र खाता</span>
+              </div>
+              <small style="color:var(--text-secondary);font-size:0.72rem">कैंपस दुकानों पर मेरा उधारी और भुगतान • राहुल वर्मा (Hostel 4)</small>
+            </div>
+            <div style="display:flex;gap:0.35rem">
+              <button type="button" class="btn btn-sm btn-primary" id="btnStudentPayAllUpi" style="background:linear-gradient(135deg,#0c831f 0%,#15803d 100%)">⚡ Pay UPI</button>
+              <button type="button" class="btn btn-sm btn-outline" id="btnStudentSplitExpenses">👥 Split</button>
+            </div>
           </div>
-          <div style="display:flex;gap:0.35rem">
-            <button type="button" class="btn btn-sm btn-primary" id="createKhataTabBtn">+ नया एंट्री</button>
-            <button type="button" class="btn btn-sm btn-outline" id="btnAddNewCustomer">+ ग्राहक जोड़ें</button>
+
+          <!-- Student 3-Metric Glass Banner -->
+          <div class="khata-metrics-banner" id="studentKhataMetricsBanner" style="display:grid;grid-template-columns:1.1fr 1fr 0.9fr;gap:0.5rem;background:#ffffff;border:1px solid var(--border-light);border-radius:14px;padding:0.75rem;box-shadow:var(--shadow-sm)">
+            <div style="display:flex;flex-direction:column">
+              <span style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">दुकानों पर बाकी</span>
+              <strong id="studentTotalDue" style="font-size:1.05rem;color:var(--danger);font-family:var(--font-heading)">₹1,075.00</strong>
+            </div>
+            <div style="display:flex;flex-direction:column;border-left:1px solid var(--border-light);padding-left:0.5rem">
+              <span style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">इस माह चुकाया</span>
+              <strong id="studentTotalPaid" style="font-size:1.05rem;color:var(--success);font-family:var(--font-heading)">₹470.00</strong>
+            </div>
+            <div style="display:flex;flex-direction:column;border-left:1px solid var(--border-light);padding-left:0.5rem">
+              <span style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">सक्रिय दुकानें</span>
+              <strong id="studentActiveShops" style="font-size:1.05rem;color:var(--text-primary);font-family:var(--font-heading)">3 दुकानें</strong>
+            </div>
+          </div>
+
+          <!-- Student Search & Filter Controls -->
+          <div style="display:flex;flex-direction:column;gap:0.45rem">
+            <div class="mh-search-wrapper">
+              <span class="mh-search-icon">🔍</span>
+              <input type="text" id="studentKhataSearchInput" placeholder="दुकान, कैंटीन या स्टेशनरी का नाम खोजें...">
+            </div>
+            <div class="m-category-scroll" id="studentKhataFilterPills" style="margin:0">
+              <button type="button" class="m-cat-pill active" data-filter="all">🏪 सभी दुकानें (<span id="countAllShops">4</span>)</button>
+              <button type="button" class="m-cat-pill" data-filter="pending">🔴 बाकी बकाया (<span id="countPendingShops">3</span>)</button>
+              <button type="button" class="m-cat-pill" data-filter="settled">🟢 हिसाब चुकता (<span id="countSettledShops">1</span>)</button>
+            </div>
+          </div>
+
+          <!-- Student Campus Shops List -->
+          <div class="m-khata-list" id="studentShopsMobileList">
+            <!-- Dynamically populated with campus tuck shops and canteens -->
           </div>
         </div>
 
-        <!-- Khata 3-Metric Glass Banner -->
-        <div class="khata-metrics-banner" id="khataMetricsBanner" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;background:#ffffff;border:1px solid var(--border-light);border-radius:14px;padding:0.75rem;box-shadow:var(--shadow-sm)">
-          <div style="display:flex;flex-direction:column">
-            <span style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">मार्केट में बाकी</span>
-            <strong id="khataTotalPending" style="font-size:1.05rem;color:var(--danger);font-family:var(--font-heading)">₹0.00</strong>
+        <!-- ================================================================= -->
+        <!-- 2. DUKANDAAR / SHOPKEEPER PERSONA: "व्यापार खाता बही (Customer Receivable)" -->
+        <!-- ================================================================= -->
+        <div class="khata-persona-section" id="vyaparKhataSection" style="display:none">
+          <div class="tab-header-bar">
+            <div>
+              <div style="display:flex;align-items:center;gap:0.4rem">
+                <h2>व्यापार खाता बही (Customer Ledger)</h2>
+                <span style="font-size:0.62rem;font-weight:800;padding:2px 6px;border-radius:6px;background:#dcfce7;color:#15803d">🏪 दुकानदार</span>
+              </div>
+              <small style="color:var(--text-secondary);font-size:0.72rem">ओम किराना स्टोर • काउंटर 1 • सभी छात्र ग्राहकों की उधारी और वसूली</small>
+            </div>
+            <div style="display:flex;gap:0.35rem">
+              <button type="button" class="btn btn-sm btn-primary" id="createKhataTabBtn">+ नया उधार</button>
+              <button type="button" class="btn btn-sm btn-outline" id="btnAddNewCustomer">+ नया ग्राहक</button>
+            </div>
           </div>
-          <div style="display:flex;flex-direction:column;border-left:1px solid var(--border-light);padding-left:0.5rem">
-            <span style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">कुल वसूली</span>
-            <strong id="khataTotalSettled" style="font-size:1.05rem;color:var(--success);font-family:var(--font-heading)">₹0.00</strong>
+
+          <!-- Dukandaar 3-Metric Glass Banner -->
+          <div class="khata-metrics-banner" id="khataMetricsBanner" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;background:#ffffff;border:1px solid var(--border-light);border-radius:14px;padding:0.75rem;box-shadow:var(--shadow-sm)">
+            <div style="display:flex;flex-direction:column">
+              <span style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">मार्केट में बाकी</span>
+              <strong id="khataTotalPending" style="font-size:1.05rem;color:var(--danger);font-family:var(--font-heading)">₹0.00</strong>
+            </div>
+            <div style="display:flex;flex-direction:column;border-left:1px solid var(--border-light);padding-left:0.5rem">
+              <span style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">कुल वसूली</span>
+              <strong id="khataTotalSettled" style="font-size:1.05rem;color:var(--success);font-family:var(--font-heading)">₹0.00</strong>
+            </div>
+            <div style="display:flex;flex-direction:column;border-left:1px solid var(--border-light);padding-left:0.5rem">
+              <span style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">सक्रिय ग्राहक</span>
+              <strong id="khataTotalCustomers" style="font-size:1.05rem;color:var(--text-primary);font-family:var(--font-heading)">0</strong>
+            </div>
           </div>
-          <div style="display:flex;flex-direction:column;border-left:1px solid var(--border-light);padding-left:0.5rem">
-            <span style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">सक्रिय ग्राहक</span>
-            <strong id="khataTotalCustomers" style="font-size:1.05rem;color:var(--text-primary);font-family:var(--font-heading)">0</strong>
+
+          <!-- Search & Filter Controls -->
+          <div style="display:flex;flex-direction:column;gap:0.45rem">
+            <div class="mh-search-wrapper">
+              <span class="mh-search-icon">🔍</span>
+              <input type="text" id="khataSearchInput" placeholder="ग्राहक का नाम या मोबाइल नंबर खोजें...">
+            </div>
+            <div class="m-category-scroll" id="khataFilterPills" style="margin:0">
+              <button type="button" class="m-cat-pill active" data-filter="all">👥 सभी ग्राहक (<span id="countAllCust">0</span>)</button>
+              <button type="button" class="m-cat-pill" data-filter="pending">🔴 बाकी उधार (<span id="countPendingCust">0</span>)</button>
+              <button type="button" class="m-cat-pill" data-filter="settled">🟢 हिसाब चुकता (<span id="countSettledCust">0</span>)</button>
+            </div>
+          </div>
+
+          <!-- Customer Debtors List -->
+          <div class="m-khata-list" id="vyaparDebtorsMobileList">
+            <!-- Dynamically populated with individual customer passbook cards -->
           </div>
         </div>
 
-        <!-- Search & Filter Controls -->
-        <div style="display:flex;flex-direction:column;gap:0.45rem">
-          <div class="mh-search-wrapper">
-            <span class="mh-search-icon">🔍</span>
-            <input type="text" id="khataSearchInput" placeholder="ग्राहक का नाम या मोबाइल नंबर खोजें...">
-          </div>
-          <div class="m-category-scroll" id="khataFilterPills" style="margin:0">
-            <button type="button" class="m-cat-pill active" data-filter="all">👥 सभी ग्राहक (<span id="countAllCust">0</span>)</button>
-            <button type="button" class="m-cat-pill" data-filter="pending">🔴 बाकी उधार (<span id="countPendingCust">0</span>)</button>
-            <button type="button" class="m-cat-pill" data-filter="settled">🟢 हिसाब चुकता (<span id="countSettledCust">0</span>)</button>
-          </div>
-        </div>
-
-        <!-- Customer Debtors List -->
-        <div class="m-khata-list" id="vyaparDebtorsMobileList">
-          <!-- Dynamically populated with individual customer passbook cards -->
-        </div>
       </div>
 
       <!-- TAB 3: SMART SOUNDBOX & QR STANDEE -->
@@ -949,9 +1012,207 @@
             <label for="ncOpeningBalance">शुरुआती उधारी (Opening Udhar ₹, optional)</label>
             <input type="number" id="ncOpeningBalance" min="0" placeholder="0.00" value="0" style="width:100%;padding:0.6rem 0.85rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
           </div>
-          <button type="submit" class="btn btn-primary btn-full">+ ग्राहक को खाते में जोड़ें</button>
-          <div class="form-error" id="ncError"></div>
+    <!-- Sheet 9: Roommate Split Modal (Hostel / Campus Students) -->
+    <div class="bottom-sheet-overlay" id="roommateSplitModal" style="display:none">
+      <div class="bottom-sheet">
+        <div class="bs-handle"></div>
+        <div class="bs-header">
+          <div>
+            <h3 id="rsmTitle">👥 रूममेट्स के साथ खर्च बाँटें (Split Bill)</h3>
+            <small style="color:var(--text-secondary);font-size:0.72rem">हॉस्टल विंग • प्रति व्यक्ति शेयर निकालें और WhatsApp पर भेजें</small>
+          </div>
+          <button class="bs-close" id="closeRoommateSplitBtn">✕</button>
+        </div>
+
+        <div style="padding:0.75rem 0">
+          <!-- Bill Source Summary -->
+          <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:0.75rem 0.95rem;margin-bottom:0.85rem;display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <span id="rsmShopName" style="font-size:0.72rem;color:var(--text-secondary);font-weight:700">Om Kirana Store</span>
+              <div id="rsmBillNote" style="font-size:0.82rem;color:var(--text-primary);font-weight:600;margin-top:2px">कैंपस उधारी बिल</div>
+            </div>
+            <div style="text-align:right">
+              <span style="font-size:0.65rem;color:var(--text-muted);text-transform:uppercase;font-weight:700">कुल बिल (Total)</span>
+              <div id="rsmTotalAmount" style="font-family:var(--font-heading);font-size:1.3rem;font-weight:900;color:var(--danger)">₹180.00</div>
+            </div>
+          </div>
+
+          <!-- People Counter Stepper -->
+          <div class="form-group" style="margin-bottom:0.85rem">
+            <label style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem">
+              <span>कितने लोगों में बाँटना है? (Number of People)</span>
+              <strong id="rsmPeopleCountLabel" style="color:var(--accent-cyan);font-size:0.88rem">3 लोग</strong>
+            </label>
+            <div style="display:flex;align-items:center;justify-content:space-between;background:#ffffff;border:1px solid #cbd5e1;border-radius:10px;padding:0.45rem 0.85rem">
+              <span style="font-size:0.8rem;color:var(--text-secondary);font-weight:600">रूममेट्स / दोस्त:</span>
+              <div class="stepper-container" style="background:#f1f5f9;border-radius:8px;padding:2px 4px">
+                <button type="button" class="step-btn" id="btnRsmDecr" style="width:30px;height:30px;font-size:1.1rem">">−</button>
+                <span class="step-count" id="rsmPeopleCount" style="min-width:32px;font-weight:800;font-size:0.95rem">3</span>
+                <button type="button" class="step-btn" id="btnRsmIncr" style="width:30px;height:30px;font-size:1.1rem">+</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Per-Head Glass Card -->
+          <div style="background:linear-gradient(135deg,#ecfdf5 0%,#d1fae5 100%);border:1px solid #a7f3d0;border-radius:12px;padding:0.8rem 1rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:0.85rem">
+            <div>
+              <span style="font-size:0.68rem;color:#047857;font-weight:800;text-transform:uppercase">प्रत्येक का हिस्सा (Share / Head)</span>
+              <div id="rsmPerHeadShare" style="font-family:var(--font-heading);font-size:1.5rem;font-weight:900;color:#065f46">₹60.00</div>
+            </div>
+            <span style="font-size:1.8rem">🍕</span>
+          </div>
+
+          <!-- Roommates Breakdown List -->
+          <div style="font-size:0.75rem;font-weight:700;color:var(--text-primary);margin-bottom:0.4rem">रूममेट्स विवरण (Roommates List):</div>
+          <div class="rsm-roommates-list" id="rsmRoommatesList" style="display:flex;flex-direction:column;gap:0.4rem;margin-bottom:1rem">
+            <!-- Dynamically populated per person rows -->
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="display:flex;flex-direction:column;gap:0.5rem">
+            <button type="button" class="btn btn-primary btn-full" id="btnShareSplitWhatsApp" style="background:linear-gradient(135deg,#25D366 0%,#128C7E 100%);box-shadow:0 4px 14px rgba(37,211,102,0.3)">
+              <span>📲</span>
+              <span>WhatsApp पर Split Request भेजें</span>
+            </button>
+            <button type="button" class="btn btn-outline btn-full" id="btnMarkSplitCollected" style="border-color:#86efac;color:#15803d;background:#ffffff">
+              <span>✅</span>
+              <span>सबका हिस्सा मिल गया (Mark Settled)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sheet 10: Student Pay Shop UPI Modal -->
+    <div class="bottom-sheet-overlay" id="studentPayShopModal" style="display:none">
+      <div class="bottom-sheet">
+        <div class="bs-handle"></div>
+        <div class="bs-header">
+          <div>
+            <h3 id="spsmTitle">⚡ दुकान को UPI भुगतान करें (Pay Shop)</h3>
+            <small style="color:var(--text-secondary);font-size:0.72rem">सीधे दुकान के खाते में भुगतान करें और उधारी घटाएं</small>
+          </div>
+          <button class="bs-close" id="closeStudentPayShopBtn">✕</button>
+        </div>
+
+        <form id="studentPayShopForm" style="padding:0.75rem 0">
+          <!-- Target Shop Header Card -->
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:12px;padding:0.75rem 0.95rem;margin-bottom:0.85rem;display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <strong id="spsmShopName" style="font-size:0.92rem;color:#1e40af;display:block">Om Kirana Store</strong>
+              <small id="spsmShopLocation" style="font-size:0.7rem;color:#3b82f6">Counter 1 • omkirana@desipay</small>
+            </div>
+            <div style="text-align:right">
+              <span style="font-size:0.65rem;color:#1e40af;font-weight:700;text-transform:uppercase">देय बाकी (Due)</span>
+              <div id="spsmDueAmount" style="font-family:var(--font-heading);font-size:1.35rem;font-weight:900;color:#dc2626">₹830.00</div>
+            </div>
+          </div>
+
+          <!-- Quick Preset Chips -->
+          <div class="form-group">
+            <label for="spsmAmount">भुगतान की राशि (₹ Payment Amount)</label>
+            <div class="preset-chips" style="display:flex;gap:0.3rem;margin-bottom:0.4rem">
+              <button type="button" class="btn btn-xs spsm-amt-chip" data-val="50">₹50</button>
+              <button type="button" class="btn btn-xs spsm-amt-chip" data-val="100">₹100</button>
+              <button type="button" class="btn btn-xs spsm-amt-chip" data-val="200">₹200</button>
+              <button type="button" class="btn btn-xs spsm-amt-chip active" id="spsmFullAmtChip">पूरा चुकता</button>
+            </div>
+            <input type="number" id="spsmAmount" step="0.01" min="1" placeholder="0.00" required style="width:100%;padding:0.65rem 0.85rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box;font-size:1.1rem;font-weight:700">
+          </div>
+
+          <!-- Payment App Selector -->
+          <div class="form-group">
+            <label for="spsmAppSelect">UPI पेमेंट ऍप चुनें (Payment Mode)</label>
+            <select id="spsmAppSelect" style="width:100%;padding:0.65rem 0.85rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
+              <option value="UPI_PHONEPE">⚡ PhonePe UPI (Instant)</option>
+              <option value="UPI_GPAY">⚡ Google Pay (GPay)</option>
+              <option value="UPI_PAYTM">⚡ Paytm UPI</option>
+              <option value="DESIPAY_FAST">⚡ DesiPay Fast Campus Wallet</option>
+              <option value="CASH_DIRECT">💵 नकद दिया (Direct Cash to Dukandaar)</option>
+            </select>
+          </div>
+
+          <!-- Note / Reference -->
+          <div class="form-group">
+            <label for="spsmNotes">विवरण (Optional Note)</label>
+            <input type="text" id="spsmNotes" placeholder="Hostel 4 student UPI payment" style="width:100%;padding:0.6rem 0.85rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full" style="background:linear-gradient(135deg,#0c831f 0%,#15803d 100%);box-shadow:0 4px 16px rgba(12,131,31,0.3)">
+            <span>🟢</span>
+            <span>दुकानदार को भुगतान करें (Pay Now)</span>
+          </button>
+          <div class="form-error" id="spsmError"></div>
         </form>
+      </div>
+    </div>
+
+    <!-- Sheet 11: Shop Itemized Receipt Passbook (Student Perspective) -->
+    <div class="bottom-sheet-overlay" id="shopPassbookSheetOverlay" style="display:none">
+      <div class="bottom-sheet passbook-sheet">
+        <div class="bs-handle"></div>
+        <div class="bs-header">
+          <div>
+            <h3 id="spbShopTitle">📜 दुकान रसीद पासbook</h3>
+            <small id="spbShopSubtitle" style="color:var(--text-secondary);font-size:0.72rem">दुकान से लिए गए सामान और भुगतानों का पूर्ण विवरण</small>
+          </div>
+          <button class="bs-close" id="closeShopPassbookBtn">✕</button>
+        </div>
+
+        <!-- Shop Passbook Summary Card -->
+        <div class="cpb-header-card" style="background:#ffffff;border:1px solid var(--border-light);border-radius:14px;padding:0.9rem 1rem;box-shadow:var(--shadow-card);margin-bottom:0.75rem">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem">
+            <div style="display:flex;align-items:center;gap:0.65rem">
+              <div id="spbAvatar" style="width:42px;height:42px;border-radius:50%;background:#e0f2fe;color:#0369a1;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:1.15rem;border:1px solid #bae6fd">
+                🏪
+              </div>
+              <div>
+                <strong id="spbShopName" style="font-size:0.98rem;color:var(--text-primary);display:block">Om Kirana Store</strong>
+                <small id="spbShopLocation" style="color:var(--text-secondary);font-size:0.72rem">Campus Tuck Shop • Counter 1</small>
+              </div>
+            </div>
+            <span class="cpb-status-badge" id="spbStatusBadge" style="font-size:0.65rem;font-weight:800;padding:3px 8px;border-radius:10px;background:#fee2e2;color:#dc2626">
+              🔴 बाकी देने हैं
+            </span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;background:#f8fafc;border-radius:10px;padding:0.65rem 0.8rem;border:1px solid #e2e8f0">
+            <div style="display:flex;flex-direction:column">
+              <span style="font-size:0.6rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">बाकी बकाया</span>
+              <strong id="spbNetBalance" style="font-family:var(--font-heading);font-size:1.15rem;color:var(--danger)">₹830.00</strong>
+            </div>
+            <div style="display:flex;flex-direction:column;border-left:1px solid #e2e8f0;padding-left:0.5rem">
+              <span style="font-size:0.6rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">कुल उधार लिया</span>
+              <strong id="spbTotalCredit" style="font-family:var(--font-heading);font-size:1.15rem;color:#dc2626">+₹1030</strong>
+            </div>
+            <div style="display:flex;flex-direction:column;border-left:1px solid #e2e8f0;padding-left:0.5rem">
+              <span style="font-size:0.6rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">कुल चुकाया</span>
+              <strong id="spbTotalDebit" style="font-family:var(--font-heading);font-size:1.15rem;color:#0c831f">-₹200</strong>
+            </div>
+          </div>
+
+          <!-- Passbook Fast Action Buttons -->
+          <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:0.45rem;margin-top:0.75rem">
+            <button type="button" class="btn btn-sm btn-primary" id="spbPayShopBtn" style="background:linear-gradient(135deg,#0c831f 0%,#15803d 100%)">
+              <span>⚡</span>
+              <span>Pay Shop UPI</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline" id="spbSplitBtn">
+              <span>👥</span>
+              <span>Split Bill</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Shop Receipts Timeline -->
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
+          <span style="font-size:0.75rem;font-weight:800;color:var(--text-secondary);text-transform:uppercase">सामान व बिल रसीदें (Receipts)</span>
+          <span style="font-size:0.7rem;color:var(--text-muted)" id="spbEntriesCount">(3 रसीदें)</span>
+        </div>
+
+        <div class="cpb-timeline-list" id="spbTimelineList" style="display:flex;flex-direction:column;gap:0.5rem;max-height:360px;overflow-y:auto;padding-bottom:1rem">
+          <!-- Populated dynamically with shop purchases & payments -->
+        </div>
       </div>
     </div>
 

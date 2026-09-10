@@ -1146,7 +1146,8 @@ body {
   box-shadow: var(--shadow-card);
 }
 
-.csm-amt-chip.active {
+.csm-amt-chip.active,
+.spsm-amt-chip.active {
   background: #0f172a !important;
   color: #ffffff !important;
   border-color: #0f172a !important;
