@@ -832,44 +832,9 @@ const app = {
   },
 
   async loadKhataTabData() {
-    const list = document.getElementById('vyaparDebtorsMobileList');
-    if (!list) return;
-
-    try {
-      const res = await api.get('/khata/dashboard').catch(() => ({ data: {} }));
-      const debtors = res?.data?.topDebtors || [
-        { fullName: 'Rahul Verma (Student)', phone: '+919800000002', balance: 450.00, lastDate: 'Today' },
-        { fullName: 'Aman Deep (Hostel 3)', phone: '+919800000003', balance: 320.00, lastDate: 'Yesterday' },
-        { fullName: 'Priya Sharma (Hostel 2)', phone: '+919800000004', balance: 180.00, lastDate: '08 Sep' },
-        { fullName: 'Vikram Singh (Canteen)', phone: '+919800000005', balance: 650.00, lastDate: '07 Sep' }
-      ];
-
-      list.innerHTML = debtors.map(d => {
-        const phoneClean = (d.phone || '+919800000002').replace(/[^0-9]/g, '');
-        const reminderText = encodeURIComponent(
-          `Namaste ${d.fullName} ji! 🙏\n\nOm Kirana Store par aapka ₹${d.balance.toFixed(2)} ka udhar baaki hai.\nKripya is DesiPay UPI link se payment kar dijiye:\nhttp://localhost:3001\n\nDhanyawad!`
-        );
-        const waLink = `https://api.whatsapp.com/send?phone=${phoneClean}&text=${reminderText}`;
-
-        return `
-          <div class="m-khata-card">
-            <div class="mkc-info">
-              <strong>${d.fullName}</strong>
-              <small>${d.phone || 'Phone'} • ${d.lastDate || 'Recent'}</small>
-            </div>
-            <div class="mkc-right" style="display:flex;gap:5px;align-items:center">
-              <span class="mkc-amount">₹${d.balance.toFixed(2)}</span>
-              <button type="button" class="btn btn-xs btn-primary" style="font-size:0.68rem;padding:3px 8px;font-weight:700" onclick="khata.settleDebtor('${d.fullName}', ${d.balance})">✅ Settle</button>
-              <a href="${waLink}" target="_blank" class="btn-whatsapp-sm">
-                <span>📲</span>
-                <span>WhatsApp</span>
-              </a>
-            </div>
-          </div>
-        `;
-      }).join('');
-    } catch (err) {
-      list.innerHTML = '<div class="empty-state">No active debtors found.</div>';
+    if (window.khata) {
+      if (window.khata.renderCustomerList) window.khata.renderCustomerList();
+      if (window.khata.updateMetrics) window.khata.updateMetrics();
     }
   },
 

@@ -250,16 +250,51 @@
 
       </div>
 
-      <!-- TAB 2: KHATA LEDGER -->
+      <!-- TAB 2: ADVANCED KHATA LEDGER (CUSTOMER-WISE STATEMENT & SETTLEMENT) -->
       <div class="tab-content" id="tabContentKhata" style="display:none">
         <div class="tab-header-bar">
-          <h2>डिजिटल खाता बही (Khata Ledger)</h2>
-          <button class="btn btn-sm btn-primary" id="createKhataTabBtn">+ New Entry</button>
+          <div>
+            <h2>डिजिटल खाता बही (Smart Khata)</h2>
+            <small style="color:var(--text-secondary);font-size:0.72rem">ग्राहक-वार पासबुक, उधारी और जमा खाता</small>
+          </div>
+          <div style="display:flex;gap:0.35rem">
+            <button type="button" class="btn btn-sm btn-primary" id="createKhataTabBtn">+ नया एंट्री</button>
+            <button type="button" class="btn btn-sm btn-outline" id="btnAddNewCustomer">+ ग्राहक जोड़ें</button>
+          </div>
         </div>
 
-        <!-- Debtors List with 1-Click WhatsApp Reminders -->
+        <!-- Khata 3-Metric Glass Banner -->
+        <div class="khata-metrics-banner" id="khataMetricsBanner" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.5rem;background:#ffffff;border:1px solid var(--border-light);border-radius:14px;padding:0.75rem;box-shadow:var(--shadow-sm)">
+          <div style="display:flex;flex-direction:column">
+            <span style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">मार्केट में बाकी</span>
+            <strong id="khataTotalPending" style="font-size:1.05rem;color:var(--danger);font-family:var(--font-heading)">₹0.00</strong>
+          </div>
+          <div style="display:flex;flex-direction:column;border-left:1px solid var(--border-light);padding-left:0.5rem">
+            <span style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">कुल वसूली</span>
+            <strong id="khataTotalSettled" style="font-size:1.05rem;color:var(--success);font-family:var(--font-heading)">₹0.00</strong>
+          </div>
+          <div style="display:flex;flex-direction:column;border-left:1px solid var(--border-light);padding-left:0.5rem">
+            <span style="font-size:0.62rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">सक्रिय ग्राहक</span>
+            <strong id="khataTotalCustomers" style="font-size:1.05rem;color:var(--text-primary);font-family:var(--font-heading)">0</strong>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div style="display:flex;flex-direction:column;gap:0.45rem">
+          <div class="mh-search-wrapper">
+            <span class="mh-search-icon">🔍</span>
+            <input type="text" id="khataSearchInput" placeholder="ग्राहक का नाम या मोबाइल नंबर खोजें...">
+          </div>
+          <div class="m-category-scroll" id="khataFilterPills" style="margin:0">
+            <button type="button" class="m-cat-pill active" data-filter="all">👥 सभी ग्राहक (<span id="countAllCust">0</span>)</button>
+            <button type="button" class="m-cat-pill" data-filter="pending">🔴 बाकी उधार (<span id="countPendingCust">0</span>)</button>
+            <button type="button" class="m-cat-pill" data-filter="settled">🟢 हिसाब चुकता (<span id="countSettledCust">0</span>)</button>
+          </div>
+        </div>
+
+        <!-- Customer Debtors List -->
         <div class="m-khata-list" id="vyaparDebtorsMobileList">
-          <!-- Dynamically populated with WhatsApp reminder cards -->
+          <!-- Dynamically populated with individual customer passbook cards -->
         </div>
       </div>
 
@@ -763,6 +798,160 @@
             <button type="button" class="btn btn-outline" id="pasteClipboardJwtBtn" style="white-space:nowrap">📋 Paste</button>
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Sheet 6: Customer Passbook & Detailed Statement Timeline -->
+    <div class="bottom-sheet-overlay" id="customerPassbookSheetOverlay" style="display:none">
+      <div class="bottom-sheet" style="max-height:92%">
+        <div class="bs-handle"></div>
+        <div class="bs-header">
+          <div style="display:flex;align-items:center;gap:0.65rem">
+            <div id="cpbAvatar" style="width:38px;height:38px;border-radius:50%;background:#0c831f;color:#ffffff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.05rem;box-shadow:var(--shadow-sm)">RV</div>
+            <div>
+              <h3 id="cpbCustomerName" style="font-size:1.05rem;line-height:1.2;margin:0">Rahul Verma</h3>
+              <small id="cpbCustomerPhone" style="font-size:0.7rem;color:var(--text-secondary)">+919800000002 • Hostel 4</small>
+            </div>
+          </div>
+          <button class="bs-close" id="closePassbookSheetBtn">✕</button>
+        </div>
+
+        <!-- Customer Net Balance Glass Card -->
+        <div style="background:linear-gradient(135deg,#ffffff 0%,#f8fafc 100%);border:1px solid var(--border-light);border-radius:14px;padding:0.9rem;margin:0.8rem 0;box-shadow:var(--shadow-card)">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.65rem">
+            <div>
+              <span style="font-size:0.68rem;color:var(--text-muted);font-weight:700;text-transform:uppercase">नेट बकाया (Net Due)</span>
+              <div id="cpbNetBalance" style="font-family:var(--font-heading);font-size:1.6rem;font-weight:900;color:var(--danger)">₹0.00</div>
+            </div>
+            <div id="cpbStatusBadge" style="font-size:0.72rem;font-weight:800;padding:4px 10px;border-radius:12px;background:#fee2e2;color:#dc2626">बाकी लेने हैं</div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;border-top:1px solid var(--border-light);padding-top:0.6rem">
+            <div>
+              <span style="font-size:0.65rem;color:var(--text-muted)">कुल उधार दिया (+ Credit)</span>
+              <div id="cpbTotalCredit" style="font-weight:800;color:var(--danger);font-size:0.95rem">+₹0.00</div>
+            </div>
+            <div>
+              <span style="font-size:0.65rem;color:var(--text-muted)">कुल जमा काटा (- Debit)</span>
+              <div id="cpbTotalDebit" style="font-weight:800;color:var(--success);font-size:0.95rem">-₹0.00</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Customer Action Buttons -->
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.4rem;margin-bottom:0.85rem">
+          <button type="button" class="btn btn-sm btn-primary" id="cpbSettleBtn" style="font-size:0.72rem;padding:0.55rem 0.4rem;background:linear-gradient(135deg,#0c831f 0%,#15803d 100%)">
+            <span>🟢</span>
+            <span>जमा काटें</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline" id="cpbAddCreditBtn" style="font-size:0.72rem;padding:0.55rem 0.4rem;border-color:#fca5a5;color:#dc2626">
+            <span>🔴</span>
+            <span>+ उधार दें</span>
+          </button>
+          <button type="button" class="btn btn-sm btn-outline" id="cpbWhatsAppBtn" style="font-size:0.72rem;padding:0.55rem 0.4rem;border-color:#86efac;color:#15803d">
+            <span>📲</span>
+            <span>WhatsApp</span>
+          </button>
+        </div>
+
+        <!-- Statement Timeline History -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.55rem">
+          <h4 style="font-size:0.88rem;font-weight:800;color:var(--text-primary);margin:0">लेन-देन का इतिहास (Statement Timeline)</h4>
+          <span id="cpbEntriesCount" style="font-size:0.72rem;color:var(--text-muted)">(0 एंट्री)</span>
+        </div>
+
+        <div id="cpbTimelineList" style="display:flex;flex-direction:column;gap:0.55rem;padding-bottom:1.5rem">
+          <!-- Dynamically populated entries -->
+        </div>
+      </div>
+    </div>
+
+    <!-- Sheet 7: Customer Settlement Modal (Cut from Balance) -->
+    <div class="bottom-sheet-overlay" id="customerSettleModal" style="display:none">
+      <div class="bottom-sheet">
+        <div class="bs-handle"></div>
+        <div class="bs-header">
+          <div>
+            <h3 id="csmTitle">हिसाब चुकता करें (Settle Balance)</h3>
+            <small id="csmSubtitle" style="color:var(--text-secondary);font-size:0.72rem">खाते से पैसे काटें और पावती दर्ज करें</small>
+          </div>
+          <button class="bs-close" id="closeCustomerSettleBtn">✕</button>
+        </div>
+
+        <form id="customerSettleForm" style="padding:1rem 0">
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:12px;padding:0.75rem;margin-bottom:0.85rem;display:flex;align-items:center;justify-content:space-between">
+            <div>
+              <span style="font-size:0.7rem;color:#15803d;font-weight:700">वर्तमान बाकी (Pending Due):</span>
+              <div id="csmPendingAmount" style="font-family:var(--font-heading);font-size:1.4rem;font-weight:900;color:#0c831f">₹0.00</div>
+            </div>
+            <button type="button" class="btn btn-xs btn-outline" id="csmFullSettleChip" style="font-size:0.72rem;background:#ffffff;border-color:#86efac;color:#15803d;font-weight:700">⚡ पूरा चुकता</button>
+          </div>
+
+          <div class="form-group">
+            <label for="csmAmount">काटने / जमा करने की राशि (₹ Settle Amount)</label>
+            <div class="preset-chips" style="display:flex;gap:0.3rem;margin-bottom:0.4rem">
+              <button type="button" class="btn btn-xs csm-amt-chip" data-val="100">₹100</button>
+              <button type="button" class="btn btn-xs csm-amt-chip" data-val="200">₹200</button>
+              <button type="button" class="btn btn-xs csm-amt-chip" data-val="500">₹500</button>
+              <button type="button" class="btn btn-xs csm-amt-chip active" id="csmFullAmtChip">पूरा</button>
+            </div>
+            <input type="number" id="csmAmount" step="0.01" min="1" placeholder="0.00" required style="width:100%;padding:0.6rem 0.85rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
+          </div>
+
+          <div class="form-group">
+            <label for="csmPaymentMode">भुगतान का माध्यम (Payment Mode)</label>
+            <select id="csmPaymentMode" style="width:100%;padding:0.6rem 0.85rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
+              <option value="UPI">⚡ PhonePe / GPay / Paytm UPI</option>
+              <option value="CASH">💵 नकद (Cash in Till)</option>
+              <option value="BANK_TRANSFER">🏦 बैंक ट्रांसफर / IMPS</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="csmNotes">विवरण / संदर्भ (Notes / UPI Ref)</label>
+            <input type="text" id="csmNotes" placeholder="GPay received / Cash in till" style="width:100%;padding:0.6rem 0.85rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
+          </div>
+
+          <button type="submit" class="btn btn-primary btn-full" style="background:linear-gradient(135deg,#0c831f 0%,#15803d 100%);box-shadow:0 4px 16px rgba(12,131,31,0.3)">
+            <span>🟢</span>
+            <span>खाते से काटें और जमा करें (Cut from Khata)</span>
+          </button>
+          <div class="form-error" id="csmError"></div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Sheet 8: Add New Customer Modal -->
+    <div class="bottom-sheet-overlay" id="newCustomerModal" style="display:none">
+      <div class="bottom-sheet">
+        <div class="bs-handle"></div>
+        <div class="bs-header">
+          <div>
+            <h3>+ नया ग्राहक जोड़ें (Add Customer)</h3>
+            <small style="color:var(--text-secondary);font-size:0.72rem">खाते में नया छात्र या ग्राहक पंजीकृत करें</small>
+          </div>
+          <button class="bs-close" id="closeNewCustomerBtn">✕</button>
+        </div>
+
+        <form id="newCustomerForm" style="padding:1rem 0">
+          <div class="form-group">
+            <label for="ncFullName">ग्राहक का पूरा नाम (Full Name)</label>
+            <input type="text" id="ncFullName" placeholder="e.g. Mohit Aggarwal" required style="width:100%;padding:0.6rem 0.85rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
+          </div>
+          <div class="form-group">
+            <label for="ncPhone">मोबाइल नंबर (+91 Phone)</label>
+            <input type="tel" id="ncPhone" placeholder="+919876543210" required style="width:100%;padding:0.6rem 0.85rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
+          </div>
+          <div class="form-group">
+            <label for="ncAddress">हॉस्टल / ब्लॉक / पता (Hostel / Room)</label>
+            <input type="text" id="ncAddress" placeholder="e.g. Hostel 1, Room 304" style="width:100%;padding:0.6rem 0.85rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
+          </div>
+          <div class="form-group">
+            <label for="ncOpeningBalance">शुरुआती उधारी (Opening Udhar ₹, optional)</label>
+            <input type="number" id="ncOpeningBalance" min="0" placeholder="0.00" value="0" style="width:100%;padding:0.6rem 0.85rem;background:#ffffff;border:1px solid #cbd5e1;border-radius:8px;color:var(--text-primary);box-sizing:border-box">
+          </div>
+          <button type="submit" class="btn btn-primary btn-full">+ ग्राहक को खाते में जोड़ें</button>
+          <div class="form-error" id="ncError"></div>
+        </form>
       </div>
     </div>
 

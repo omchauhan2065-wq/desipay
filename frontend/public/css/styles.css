@@ -1128,6 +1128,30 @@ body {
   border-color: #4ade80;
 }
 
+/* Customer Passbook & Statement Timeline */
+.cpb-timeline-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0.95rem;
+  background: #ffffff;
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.cpb-timeline-entry:hover {
+  border-color: rgba(12, 131, 31, 0.25);
+  box-shadow: var(--shadow-card);
+}
+
+.csm-amt-chip.active {
+  background: #0f172a !important;
+  color: #ffffff !important;
+  border-color: #0f172a !important;
+}
+
 /* Soundbox Device Card */
 .m-device-card {
   background: #ffffff;
