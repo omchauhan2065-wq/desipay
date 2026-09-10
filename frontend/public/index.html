@@ -3,22 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="DesiPay — Cyber-Secure Payment Gateway & Digital Khata Platform Dashboard">
-  <title>DesiPay Dashboard</title>
+  <meta name="description" content="DesiPay — Cyber-Secure FinTech Payment Gateway & Digital Khata Platform">
+  <title>DesiPay — Modern Payment Gateway & Digital Khata</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
 </head>
 <body>
+  <!-- Ambient Gradient Background Orbs -->
+  <div class="ambient-orb orb-1"></div>
+  <div class="ambient-orb orb-2"></div>
+  <div class="ambient-orb orb-3"></div>
+
   <!-- Sidebar Navigation -->
   <nav class="sidebar" id="sidebar">
     <div class="sidebar-header">
       <div class="logo">
-        <span class="logo-icon">🏦</span>
-        <span class="logo-text">DesiPay</span>
+        <div class="logo-badge-icon">💳</div>
+        <div class="logo-content">
+          <span class="logo-text">DesiPay</span>
+          <span class="logo-sub">FINTECH & KHATA</span>
+        </div>
       </div>
-      <span class="logo-badge">BETA</span>
+      <span class="logo-badge">PRO</span>
     </div>
 
     <ul class="nav-list" id="navList">
@@ -50,71 +58,171 @@
         <div class="user-avatar" id="userAvatar">O</div>
         <div class="user-details">
           <span class="user-name" id="userName">-</span>
-          <span class="user-role" id="userRole">-</span>
+          <span class="user-role-pill" id="userRole">-</span>
         </div>
       </div>
-      <button class="btn btn-sm btn-outline" id="logoutBtn" style="display:none">Logout</button>
+      <div class="sidebar-actions">
+        <button class="btn btn-sm btn-sidebar-jwt" id="sidebarJwtBtn" title="Inspect Active JWT Token">
+          <span>🔑</span>
+          <span>JWT Token</span>
+        </button>
+        <button class="btn btn-sm btn-outline btn-logout" id="logoutBtn" style="display:none">
+          <span>🚪</span>
+          <span>Sign Out</span>
+        </button>
+      </div>
     </div>
   </nav>
 
-  <!-- Main Content -->
+  <!-- Main Application Wrapper -->
   <main class="main-content">
     <!-- Top Bar -->
     <header class="topbar">
-      <button class="menu-toggle" id="menuToggle">☰</button>
-      <h1 class="page-title" id="pageTitle">Dashboard</h1>
+      <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">☰</button>
+      <div class="topbar-title-group">
+        <h1 class="page-title" id="pageTitle">Dashboard</h1>
+        <span class="live-clock" id="liveClock">--:--:--</span>
+      </div>
+
       <div class="topbar-actions">
+        <!-- JWT Status Pill (Clickable) -->
+        <div class="jwt-pill" id="topbarJwtPill" title="Click to open Live JWT Token Cockpit">
+          <span class="jwt-pulse-dot" id="jwtPulseDot"></span>
+          <span class="jwt-pill-text" id="topbarJwtText">JWT Inactive</span>
+        </div>
+
+        <!-- API Health Pill -->
         <span class="api-status" id="apiStatus">● Connecting...</span>
+
+        <!-- Open JWT Cockpit Button -->
+        <button class="btn btn-sm btn-jwt-cockpit" id="openJwtModalBtn">
+          <span>🛡️</span>
+          <span>JWT Cockpit</span>
+        </button>
       </div>
     </header>
 
-    <!-- Auth Page (shown when not logged in) -->
+    <!-- ============================================
+         AUTH PAGE (LOGIN & REGISTER + JWT COCKPIT)
+         ============================================ -->
     <section class="page" id="page-auth">
-      <div class="auth-container">
+      <div class="auth-hero-banner">
+        <div class="hero-badge">⚡ PRODUCTION READY ARCHITECTURE</div>
+        <h2 class="hero-title">Next-Gen Cyber-Secure Payments & Smart Khata</h2>
+        <p class="hero-subtitle">
+          Engineered with Asymmetric <span class="highlight">RS256 JWT Authentication</span>, 
+          tamper-evident double-entry ledger, and real-time MongoDB catalog.
+        </p>
+      </div>
+
+      <div class="auth-grid-container">
+        <!-- Left: Login & Register Card -->
         <div class="auth-card glass-card">
           <div class="auth-header">
-            <span class="auth-logo">🏦</span>
-            <h2>DesiPay</h2>
-            <p class="auth-subtitle">Secure Payment Gateway & Digital Khata</p>
+            <div class="auth-icon-ring">🏦</div>
+            <h2>Account Access</h2>
+            <p class="auth-subtitle">Sign in or create your DesiPay merchant account</p>
+          </div>
+
+          <!-- 1-Click Quick Demo Login Chips -->
+          <div class="demo-credentials-section">
+            <div class="demo-header">
+              <span class="demo-sparkle">⚡</span>
+              <span class="demo-title">1-Click Quick Demo Login:</span>
+              <span class="demo-hint">(Click to auto-fill & sign in)</span>
+            </div>
+            <div class="demo-chips-grid">
+              <button type="button" class="demo-chip" data-role="shopkeeper" title="Om Kirana Store (Full Shopkeeper Admin)">
+                <span class="chip-icon">🛒</span>
+                <div class="chip-info">
+                  <span class="chip-title">Shopkeeper</span>
+                  <span class="chip-email">shopkeeper.live@desipay.com</span>
+                </div>
+                <span class="chip-badge role-shopkeeper">Admin</span>
+              </button>
+
+              <button type="button" class="demo-chip" data-role="customer" title="Aakash Kumar (Customer with active Udhar)">
+                <span class="chip-icon">👤</span>
+                <div class="chip-info">
+                  <span class="chip-title">Customer</span>
+                  <span class="chip-email">customer.live@desipay.com</span>
+                </div>
+                <span class="chip-badge role-customer">Udhar</span>
+              </button>
+
+              <button type="button" class="demo-chip" data-role="b2b" title="Apex Wholesale Ltd (B2B Merchant)">
+                <span class="chip-icon">🏢</span>
+                <div class="chip-info">
+                  <span class="chip-title">B2B Wholesale</span>
+                  <span class="chip-email">b2b.live@desipay.com</span>
+                </div>
+                <span class="chip-badge role-b2b">Wholesale</span>
+              </button>
+            </div>
           </div>
 
           <div class="auth-tabs">
-            <button class="auth-tab active" data-tab="login">Login</button>
-            <button class="auth-tab" data-tab="register">Register</button>
+            <button class="auth-tab active" data-tab="login">Sign In</button>
+            <button class="auth-tab" data-tab="register">Create Account</button>
           </div>
 
           <!-- Login Form -->
           <form id="loginForm" class="auth-form">
             <div class="form-group">
-              <label for="loginEmail">Email</label>
-              <input type="email" id="loginEmail" placeholder="you@example.com" required>
+              <label for="loginEmail">Email Address</label>
+              <div class="input-with-icon">
+                <span class="input-icon">✉️</span>
+                <input type="email" id="loginEmail" placeholder="you@desipay.com" required value="shopkeeper.live@desipay.com">
+              </div>
             </div>
+
             <div class="form-group">
               <label for="loginPassword">Password</label>
-              <input type="password" id="loginPassword" placeholder="••••••••" required>
+              <div class="input-with-icon">
+                <span class="input-icon">🔒</span>
+                <input type="password" id="loginPassword" placeholder="••••••••" required value="Password@123">
+                <button type="button" class="password-toggle-btn" id="togglePasswordBtn" title="Show or hide password">
+                  👁️
+                </button>
+              </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+
+            <button type="submit" class="btn btn-primary btn-full btn-glow">
+              <span>Sign In with RS256 JWT</span>
+              <span>→</span>
+            </button>
             <div class="form-error" id="loginError"></div>
           </form>
 
           <!-- Register Form -->
           <form id="registerForm" class="auth-form" style="display:none">
             <div class="form-group">
-              <label for="regName">Full Name</label>
-              <input type="text" id="regName" placeholder="Om Chauhan" required>
+              <label for="regName">Full Name / Merchant Name</label>
+              <div class="input-with-icon">
+                <span class="input-icon">👤</span>
+                <input type="text" id="regName" placeholder="Om Chauhan" required>
+              </div>
             </div>
-            <div class="form-group">
-              <label for="regEmail">Email</label>
-              <input type="email" id="regEmail" placeholder="you@example.com" required>
-            </div>
-            <div class="form-group">
-              <label for="regPhone">Phone (Indian)</label>
-              <input type="tel" id="regPhone" placeholder="+919876543210" required>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regEmail">Email Address</label>
+                <div class="input-with-icon">
+                  <span class="input-icon">✉️</span>
+                  <input type="email" id="regEmail" placeholder="om@example.com" required>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="regPhone">Phone (Indian +91)</label>
+                <div class="input-with-icon">
+                  <span class="input-icon">📱</span>
+                  <input type="tel" id="regPhone" placeholder="+919876543210" required>
+                </div>
+              </div>
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label for="regPassword">Password</label>
-                <input type="password" id="regPassword" placeholder="••••••••" required>
+                <input type="password" id="regPassword" placeholder="Min 8 chars" required>
               </div>
               <div class="form-group">
                 <label for="regConfirm">Confirm</label>
@@ -122,56 +230,189 @@
               </div>
             </div>
             <div class="form-group">
-              <label for="regRole">Role</label>
+              <label for="regRole">Merchant Role</label>
               <select id="regRole">
-                <option value="CUSTOMER">Customer</option>
-                <option value="SHOPKEEPER">Shopkeeper</option>
-                <option value="B2B_CUSTOMER">B2B Customer</option>
+                <option value="SHOPKEEPER">Shopkeeper / Merchant (Retail Store)</option>
+                <option value="CUSTOMER">Retail Customer</option>
+                <option value="B2B_CUSTOMER">B2B Wholesale Buyer</option>
               </select>
             </div>
-            <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+            <button type="submit" class="btn btn-primary btn-full btn-glow">Create Account</button>
             <div class="form-error" id="registerError"></div>
           </form>
+        </div>
+
+        <!-- Right: Live JWT Token Inspector & Debugger Card -->
+        <div class="jwt-inspector-card glass-card" id="authJwtCard">
+          <div class="jwt-card-header">
+            <div class="jwt-title-wrap">
+              <span class="jwt-header-icon">🛡️</span>
+              <div>
+                <h3 class="jwt-title">Live JWT Token Cockpit</h3>
+                <p class="jwt-subtitle">Cryptographic inspection & claims verification</p>
+              </div>
+            </div>
+            <div class="jwt-status-badge" id="jwtStatusBadge">
+              <span class="pulse-dot"></span>
+              <span id="jwtStatusText">No Active Token</span>
+            </div>
+          </div>
+
+          <!-- Token Expiration Countdown -->
+          <div class="jwt-countdown-bar" id="jwtCountdownBar">
+            <div class="countdown-label">
+              <span>Token Lifespan:</span>
+              <strong id="jwtTimerText">--:--</strong>
+            </div>
+            <div class="countdown-track">
+              <div class="countdown-progress" id="jwtProgressBar" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- Decoded Claims Overview -->
+          <div class="claims-grid" id="claimsGrid">
+            <div class="claim-item">
+              <span class="claim-label">Role</span>
+              <span class="claim-val badge-role" id="jwtClaimRole">GUEST</span>
+            </div>
+            <div class="claim-item">
+              <span class="claim-label">Algorithm</span>
+              <span class="claim-val claim-mono" id="jwtClaimAlg">RS256</span>
+            </div>
+            <div class="claim-item">
+              <span class="claim-label">User ID</span>
+              <span class="claim-val claim-mono claim-truncate" id="jwtClaimUserId">None</span>
+            </div>
+            <div class="claim-item">
+              <span class="claim-label">Session ID</span>
+              <span class="claim-val claim-mono claim-truncate" id="jwtClaimSessionId">None</span>
+            </div>
+          </div>
+
+          <!-- Raw Colorized JWT Display -->
+          <div class="raw-jwt-container">
+            <div class="raw-jwt-header">
+              <span class="raw-label">Raw Bearer Token (Header . Payload . Signature)</span>
+              <button type="button" class="btn-copy-token" id="copyJwtBtn" title="Copy raw JWT to clipboard">
+                📋 Copy Token
+              </button>
+            </div>
+            <div class="raw-jwt-box" id="rawJwtBox">
+              <span class="jwt-placeholder">Log in using any demo credentials above to generate and inspect your RS256 JWT bearer token here.</span>
+            </div>
+          </div>
+
+          <!-- Token Security Action Bar -->
+          <div class="jwt-actions-bar">
+            <button type="button" class="btn btn-sm btn-outline" id="refreshJwtBtn" title="Call /api/v1/auth/refresh">
+              <span>🔄</span>
+              <span>Refresh Token</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-outline" id="injectJwtBtn" title="Paste or inject custom token">
+              <span>🧪</span>
+              <span>Inject Token</span>
+            </button>
+            <button type="button" class="btn btn-sm btn-danger" id="clearJwtBtn" title="Purge local storage token">
+              <span>🚫</span>
+              <span>Clear Token</span>
+            </button>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- Dashboard Page -->
+    <!-- ============================================
+         DASHBOARD PAGE
+         ============================================ -->
     <section class="page" id="page-dashboard" style="display:none">
+      <!-- Greeting Banner -->
+      <div class="dashboard-banner glass-card">
+        <div class="banner-content">
+          <div class="banner-greeting">
+            <h2>Welcome back, <span id="dashGreetingName">Merchant</span>! 👋</h2>
+            <p>Your store security status is optimal. All systems healthy.</p>
+          </div>
+          <div class="banner-role-tag" id="dashRoleTag">
+            <span class="role-icon">🛡️</span>
+            <span id="dashRoleLabel">SHOPKEEPER</span>
+          </div>
+        </div>
+
+        <!-- Quick Actions Toolbar -->
+        <div class="quick-actions-toolbar">
+          <button class="qa-btn" id="qaPayment">
+            <span class="qa-icon">💳</span>
+            <span>+ Quick Pay</span>
+          </button>
+          <button class="qa-btn" id="qaKhata">
+            <span class="qa-icon">📒</span>
+            <span>+ Add Udhar</span>
+          </button>
+          <button class="qa-btn" id="qaInventory">
+            <span class="qa-icon">📦</span>
+            <span>+ Add Item</span>
+          </button>
+          <button class="qa-btn qa-jwt" id="qaJwt">
+            <span class="qa-icon">🔑</span>
+            <span>JWT Debugger</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats Grid -->
       <div class="stats-grid" id="statsGrid">
         <div class="stat-card glass-card">
-          <div class="stat-icon">💰</div>
+          <div class="stat-header">
+            <span class="stat-icon icon-revenue">💰</span>
+            <span class="stat-trend trend-up">↑ +18.4%</span>
+          </div>
           <div class="stat-info">
             <span class="stat-value" id="statRevenue">₹0</span>
             <span class="stat-label">Total Revenue</span>
           </div>
         </div>
+
         <div class="stat-card glass-card">
-          <div class="stat-icon">📒</div>
+          <div class="stat-header">
+            <span class="stat-icon icon-udhar">📒</span>
+            <span class="stat-trend trend-warn">Active Khata</span>
+          </div>
           <div class="stat-info">
             <span class="stat-value" id="statUdhar">₹0</span>
             <span class="stat-label">Outstanding Udhar</span>
           </div>
         </div>
+
         <div class="stat-card glass-card">
-          <div class="stat-icon">📦</div>
+          <div class="stat-header">
+            <span class="stat-icon icon-products">📦</span>
+            <span class="stat-trend trend-normal">Catalog</span>
+          </div>
           <div class="stat-info">
             <span class="stat-value" id="statProducts">0</span>
             <span class="stat-label">Active Products</span>
           </div>
         </div>
+
         <div class="stat-card glass-card">
-          <div class="stat-icon">⚠️</div>
+          <div class="stat-header">
+            <span class="stat-icon icon-alerts">⚠️</span>
+            <span class="stat-trend trend-alert">Monitoring</span>
+          </div>
           <div class="stat-info">
             <span class="stat-value" id="statAlerts">0</span>
-            <span class="stat-label">Low Stock Alerts</span>
+            <span class="stat-label">Stock Alerts</span>
           </div>
         </div>
       </div>
 
+      <!-- Content Grid -->
       <div class="content-grid">
         <div class="glass-card">
-          <h3 class="card-title">Recent Transactions</h3>
+          <div class="card-header-bar">
+            <h3 class="card-title">Recent Transactions</h3>
+            <button class="btn btn-sm btn-outline" id="viewAllPaymentsBtn">View All</button>
+          </div>
           <div class="table-container">
             <table class="data-table" id="recentTxTable">
               <thead>
@@ -183,8 +424,12 @@
             </table>
           </div>
         </div>
+
         <div class="glass-card">
-          <h3 class="card-title">Top Debtors</h3>
+          <div class="card-header-bar">
+            <h3 class="card-title">Top Debtors (Udhar Ledger)</h3>
+            <button class="btn btn-sm btn-outline" id="viewAllKhataBtn">Open Khata</button>
+          </div>
           <div class="table-container">
             <table class="data-table" id="debtorsTable">
               <thead>
@@ -199,13 +444,23 @@
       </div>
     </section>
 
-    <!-- Payments Page -->
+    <!-- ============================================
+         PAYMENTS PAGE
+         ============================================ -->
     <section class="page" id="page-payments" style="display:none">
       <div class="page-actions">
-        <button class="btn btn-primary" id="createPaymentBtn">+ New Payment</button>
+        <button class="btn btn-primary btn-glow" id="createPaymentBtn">
+          <span>+</span>
+          <span>New Payment Order</span>
+        </button>
+        <div class="filter-pills" id="paymentFilters">
+          <button class="pill active" data-filter="ALL">All</button>
+          <button class="pill" data-filter="COMPLETED">Completed</button>
+          <button class="pill" data-filter="PENDING">Pending</button>
+        </div>
       </div>
       <div class="glass-card">
-        <h3 class="card-title">Payment History</h3>
+        <h3 class="card-title">Payment History & Razorpay Orders</h3>
         <div class="table-container">
           <table class="data-table">
             <thead>
@@ -226,39 +481,53 @@
             <button class="modal-close" data-close="paymentModal">×</button>
           </div>
           <form id="createPaymentForm">
+            <!-- Amount Presets -->
+            <div class="amount-presets">
+              <span class="preset-label">Quick Amounts:</span>
+              <div class="preset-chips">
+                <button type="button" class="preset-chip" data-val="100">₹100</button>
+                <button type="button" class="preset-chip" data-val="500">₹500</button>
+                <button type="button" class="preset-chip" data-val="1000">₹1,000</button>
+                <button type="button" class="preset-chip" data-val="5000">₹5,000</button>
+              </div>
+            </div>
+
             <div class="form-group">
               <label for="payAmount">Amount (₹)</label>
               <input type="number" id="payAmount" step="0.01" min="1" placeholder="500.00" required>
             </div>
             <div class="form-group">
-              <label for="payDesc">Description</label>
-              <input type="text" id="payDesc" placeholder="Payment for order #123">
+              <label for="payDesc">Description / Note</label>
+              <input type="text" id="payDesc" placeholder="Payment for grocery invoice #102">
             </div>
-            <button type="submit" class="btn btn-primary btn-full">Create Order</button>
+            <button type="submit" class="btn btn-primary btn-full btn-glow">Generate Razorpay Order</button>
             <div class="form-error" id="paymentError"></div>
           </form>
         </div>
       </div>
     </section>
 
-    <!-- Khata Page -->
+    <!-- ============================================
+         KHATA BOOK PAGE
+         ============================================ -->
     <section class="page" id="page-khata" style="display:none">
       <div class="page-actions">
-        <button class="btn btn-primary" id="createKhataBtn">+ New Entry</button>
+        <button class="btn btn-primary btn-glow" id="createKhataBtn">
+          <span>+</span>
+          <span>Record Khata Entry</span>
+        </button>
       </div>
-      <div class="content-grid">
-        <div class="glass-card">
-          <h3 class="card-title">Khata Ledger</h3>
-          <div class="table-container">
-            <table class="data-table">
-              <thead>
-                <tr><th>Date</th><th>Customer</th><th>Type</th><th>Amount</th><th>Balance</th><th>Status</th></tr>
-              </thead>
-              <tbody id="khataBody">
-                <tr><td colspan="6" class="empty-state">No khata entries</td></tr>
-              </tbody>
-            </table>
-          </div>
+      <div class="glass-card">
+        <h3 class="card-title">Digital Khata Ledger</h3>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr><th>Date</th><th>Customer</th><th>Type</th><th>Amount</th><th>Balance</th><th>Status</th></tr>
+            </thead>
+            <tbody id="khataBody">
+              <tr><td colspan="6" class="empty-state">No khata entries</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
@@ -271,45 +540,55 @@
           </div>
           <form id="createKhataForm">
             <div class="form-group">
-              <label for="khataCustomerId">Customer ID</label>
-              <input type="text" id="khataCustomerId" placeholder="Customer UUID" required>
+              <label for="khataCustomerId">Customer UUID</label>
+              <input type="text" id="khataCustomerId" placeholder="e.g. 7c9e6679-7425-40de-944b-e07fc1f90ae7" required>
+              <small class="form-hint">Tip: Use demo customer ID or any registered user ID</small>
             </div>
             <div class="form-group">
               <label for="khataType">Entry Type</label>
-              <select id="khataType">
-                <option value="CREDIT">Udhar Diya (Credit)</option>
-                <option value="DEBIT">Paisa Liya (Debit)</option>
-              </select>
+              <div class="entry-type-selector">
+                <label class="type-option">
+                  <input type="radio" name="khataTypeRadio" value="CREDIT" checked>
+                  <span class="type-pill type-credit">🔴 Udhar Diya (Credit)</span>
+                </label>
+                <label class="type-option">
+                  <input type="radio" name="khataTypeRadio" value="DEBIT">
+                  <span class="type-pill type-debit">🟢 Paisa Vasool (Debit)</span>
+                </label>
+              </div>
+              <input type="hidden" id="khataType" value="CREDIT">
             </div>
             <div class="form-group">
               <label for="khataAmount">Amount (₹)</label>
-              <input type="number" id="khataAmount" step="0.01" min="1" required>
+              <input type="number" id="khataAmount" step="0.01" min="1" placeholder="250.00" required>
             </div>
             <div class="form-group">
-              <label for="khataDesc">Description</label>
-              <input type="text" id="khataDesc" placeholder="Grocery items">
+              <label for="khataDesc">Items Description / Note</label>
+              <input type="text" id="khataDesc" placeholder="Atta 5kg, Mustard oil 1L">
             </div>
-            <button type="submit" class="btn btn-primary btn-full">Record Entry</button>
+            <button type="submit" class="btn btn-primary btn-full btn-glow">Commit to Double-Entry Ledger</button>
             <div class="form-error" id="khataError"></div>
           </form>
         </div>
       </div>
     </section>
 
-    <!-- Inventory Page -->
+    <!-- ============================================
+         INVENTORY PAGE
+         ============================================ -->
     <section class="page" id="page-inventory" style="display:none">
       <div class="page-actions">
-        <button class="btn btn-primary" id="addProductBtn">+ Add Product</button>
+        <button class="btn btn-primary btn-glow" id="addProductBtn">+ Add New Product</button>
         <div class="search-bar">
-          <input type="text" id="inventorySearch" placeholder="Search products or scan barcode...">
+          <input type="text" id="inventorySearch" placeholder="🔍 Search product name, SKU or barcode...">
         </div>
       </div>
       <div class="glass-card">
-        <h3 class="card-title">Product Inventory</h3>
+        <h3 class="card-title">MongoDB Product Catalog & Stock Matrix</h3>
         <div class="table-container">
           <table class="data-table">
             <thead>
-              <tr><th>Product</th><th>SKU</th><th>Price</th><th>Stock</th><th>Category</th><th>Actions</th></tr>
+              <tr><th>Product</th><th>SKU</th><th>Price</th><th>Stock Level</th><th>Category</th><th>Actions</th></tr>
             </thead>
             <tbody id="inventoryBody">
               <tr><td colspan="6" class="empty-state">No products found</td></tr>
@@ -322,59 +601,143 @@
       <div class="modal-overlay" id="productModal" style="display:none">
         <div class="modal glass-card modal-lg">
           <div class="modal-header">
-            <h3>Add Product</h3>
+            <h3>Add Product to Catalog</h3>
             <button class="modal-close" data-close="productModal">×</button>
           </div>
           <form id="addProductForm">
             <div class="form-row">
-              <div class="form-group"><label for="prodName">Name</label><input type="text" id="prodName" required></div>
-              <div class="form-group"><label for="prodSku">SKU</label><input type="text" id="prodSku" required></div>
+              <div class="form-group"><label for="prodName">Product Name</label><input type="text" id="prodName" placeholder="Fortune Sunflower Oil 1L" required></div>
+              <div class="form-group"><label for="prodSku">SKU Code</label><input type="text" id="prodSku" placeholder="OIL-SUN-001" required></div>
             </div>
             <div class="form-row">
-              <div class="form-group"><label for="prodBarcode">Barcode</label><input type="text" id="prodBarcode"></div>
-              <div class="form-group"><label for="prodCategory">Category</label><input type="text" id="prodCategory" required></div>
+              <div class="form-group"><label for="prodBarcode">Barcode (EAN-13)</label><input type="text" id="prodBarcode" placeholder="8901030382941"></div>
+              <div class="form-group"><label for="prodCategory">Category</label><input type="text" id="prodCategory" placeholder="Edible Oils" required></div>
             </div>
             <div class="form-row">
-              <div class="form-group"><label for="prodMrp">MRP (₹)</label><input type="number" id="prodMrp" step="0.01" required></div>
-              <div class="form-group"><label for="prodSelling">Selling Price (₹)</label><input type="number" id="prodSelling" step="0.01" required></div>
-              <div class="form-group"><label for="prodCost">Cost Price (₹)</label><input type="number" id="prodCost" step="0.01" required></div>
+              <div class="form-group"><label for="prodMrp">MRP (₹)</label><input type="number" id="prodMrp" step="0.01" placeholder="185.00" required></div>
+              <div class="form-group"><label for="prodSelling">Selling Price (₹)</label><input type="number" id="prodSelling" step="0.01" placeholder="165.00" required></div>
+              <div class="form-group"><label for="prodCost">Cost Price (₹)</label><input type="number" id="prodCost" step="0.01" placeholder="140.00" required></div>
             </div>
             <div class="form-row">
-              <div class="form-group"><label for="prodStock">Initial Stock</label><input type="number" id="prodStock" value="0"></div>
+              <div class="form-group"><label for="prodStock">Initial Stock</label><input type="number" id="prodStock" value="25"></div>
               <div class="form-group">
-                <label for="prodUnit">Unit</label>
-                <select id="prodUnit"><option>piece</option><option>kg</option><option>g</option><option>litre</option><option>ml</option><option>dozen</option><option>pack</option><option>box</option></select>
+                <label for="prodUnit">Unit of Measure</label>
+                <select id="prodUnit">
+                  <option>piece</option><option>kg</option><option>g</option><option>litre</option><option>ml</option><option>dozen</option><option>pack</option><option>box</option>
+                </select>
               </div>
               <div class="form-group">
-                <label for="prodGst">GST Rate</label>
-                <select id="prodGst"><option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18">18%</option><option value="28">28%</option></select>
+                <label for="prodGst">GST Slab</label>
+                <select id="prodGst">
+                  <option value="0">0% (Exempt)</option>
+                  <option value="5" selected>5% (Food & Ess.)</option>
+                  <option value="12">12%</option>
+                  <option value="18">18%</option>
+                  <option value="28">28%</option>
+                </select>
               </div>
             </div>
-            <button type="submit" class="btn btn-primary btn-full">Add Product</button>
+            <button type="submit" class="btn btn-primary btn-full btn-glow">Save Product</button>
             <div class="form-error" id="productError"></div>
           </form>
         </div>
       </div>
     </section>
 
-    <!-- Notifications Page -->
+    <!-- ============================================
+         NOTIFICATIONS PAGE
+         ============================================ -->
     <section class="page" id="page-notifications" style="display:none">
       <div class="page-actions">
-        <button class="btn btn-outline" id="markAllReadBtn">✓ Mark All Read</button>
+        <button class="btn btn-outline" id="markAllReadBtn">✓ Mark All as Read</button>
       </div>
       <div class="glass-card">
-        <h3 class="card-title">Notifications</h3>
+        <h3 class="card-title">Security & Transaction Alerts</h3>
         <div class="notification-list" id="notificationList">
           <div class="empty-state">No notifications</div>
         </div>
       </div>
     </section>
 
+    <!-- ============================================
+         GLOBAL JWT COCKPIT MODAL (ACCESSIBLE FROM ANYWHERE)
+         ============================================ -->
+    <div class="modal-overlay" id="jwtCockpitModal" style="display:none">
+      <div class="modal glass-card modal-lg">
+        <div class="modal-header">
+          <div class="modal-title-group">
+            <span class="modal-icon">🛡️</span>
+            <div>
+              <h3>RS256 JWT Security Cockpit</h3>
+              <p class="modal-subtitle">Real-time token validation, claims inspection, and lifecycle operations</p>
+            </div>
+          </div>
+          <button class="modal-close" data-close="jwtCockpitModal">×</button>
+        </div>
+
+        <div class="modal-jwt-body">
+          <!-- Token Status & Expiry -->
+          <div class="modal-status-row">
+            <div class="modal-status-item">
+              <span class="ms-label">Token Status</span>
+              <div class="ms-val" id="modalJwtStatusBadge">
+                <span class="pulse-dot"></span>
+                <span id="modalJwtStatusText">No Active Token</span>
+              </div>
+            </div>
+            <div class="modal-status-item">
+              <span class="ms-label">Expires In</span>
+              <div class="ms-val ms-timer" id="modalJwtTimerText">--:--</div>
+            </div>
+            <div class="modal-status-item">
+              <span class="ms-label">Signing Algorithm</span>
+              <div class="ms-val ms-mono">RS256 (4096-bit RSA)</div>
+            </div>
+          </div>
+
+          <!-- Decoded Claims JSON Tree -->
+          <div class="modal-claims-section">
+            <div class="section-title-bar">
+              <span>Decoded Claims (Payload)</span>
+              <span class="claims-tag">VERIFIED BY PUBLIC KEY</span>
+            </div>
+            <pre class="json-code-box" id="modalClaimsJson">{ "status": "unauthenticated" }</pre>
+          </div>
+
+          <!-- Colorized Raw Bearer Token Box -->
+          <div class="modal-raw-section">
+            <div class="section-title-bar">
+              <span>Raw Bearer Token</span>
+              <button type="button" class="btn-copy-token" id="modalCopyJwtBtn">📋 Copy Bearer Token</button>
+            </div>
+            <div class="raw-jwt-box" id="modalRawJwtBox">
+              <span class="jwt-placeholder">No active token.</span>
+            </div>
+          </div>
+
+          <!-- Inject Custom Token Field -->
+          <div class="modal-inject-section">
+            <label for="customJwtInput">Inject / Test Custom JWT Token:</label>
+            <div class="inject-input-row">
+              <input type="text" id="customJwtInput" placeholder="Paste custom JWT here to test against /api/v1/auth/me...">
+              <button type="button" class="btn btn-sm btn-primary" id="applyCustomJwtBtn">Apply & Test</button>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="modal-footer-actions">
+            <button type="button" class="btn btn-outline" id="modalRefreshJwtBtn">🔄 Refresh Access Token</button>
+            <button type="button" class="btn btn-danger" id="modalClearJwtBtn">🚫 Invalidate Session</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Toast Container -->
     <div class="toast-container" id="toastContainer"></div>
   </main>
 
-  <!-- Scripts -->
+  <!-- Application Logic Modules -->
   <script src="/js/api.js"></script>
   <script src="/js/auth.js"></script>
   <script src="/js/dashboard.js"></script>
