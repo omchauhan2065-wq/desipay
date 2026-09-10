@@ -38,6 +38,8 @@ import paymentRoutes from './modules/payment/payment.routes';
 import khataRoutes from './modules/khata/khata.routes';
 import inventoryRoutes from './modules/inventory/inventory.routes';
 import notificationRoutes from './modules/notification/notification.routes';
+import deliveryRoutes from './modules/delivery/delivery.routes';
+import voiceRoutes from './modules/voice/voice.routes';
 
 const app = express();
 
@@ -227,6 +229,10 @@ app.use(`${apiPrefix}/payments`, paymentRoutes);
 app.use(`${apiPrefix}/khata`, khataRoutes);
 app.use(`${apiPrefix}/inventory`, inventoryRoutes);
 app.use(`${apiPrefix}/notifications`, notificationRoutes);
+app.use(`${apiPrefix}/orders`, deliveryRoutes);
+app.use(`${apiPrefix}/delivery`, deliveryRoutes);
+app.use(`${apiPrefix}/voice`, voiceRoutes);
+app.use(`${apiPrefix}/soundbox`, voiceRoutes);
 
 // API status endpoint — list all registered modules
 app.get(`${apiPrefix}/status`, (_req, res) => {
@@ -242,8 +248,10 @@ app.get(`${apiPrefix}/status`, (_req, res) => {
         { name: 'khata', path: `${apiPrefix}/khata`, status: 'active' },
         { name: 'inventory', path: `${apiPrefix}/inventory`, status: 'active' },
         { name: 'notifications', path: `${apiPrefix}/notifications`, status: 'active' },
-        { name: 'voice', path: `${apiPrefix}/voice`, status: 'planned' },
-        { name: 'delivery', path: `${apiPrefix}/delivery`, status: 'planned' },
+        { name: 'voice', path: `${apiPrefix}/voice`, status: 'active' },
+        { name: 'soundbox', path: `${apiPrefix}/soundbox`, status: 'active' },
+        { name: 'delivery', path: `${apiPrefix}/delivery`, status: 'active' },
+        { name: 'orders', path: `${apiPrefix}/orders`, status: 'active' },
         { name: 'b2b', path: `${apiPrefix}/b2b`, status: 'planned' },
       ],
       healthEndpoints: ['/health', '/ready'],

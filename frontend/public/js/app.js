@@ -392,17 +392,43 @@ const app = {
 
         try {
           this.showToast(`Initiating UPI payment of ₹${total}...`, 'info');
+          
+          // 1. Create Razorpay Payment Order
           const res = await api.post('/payments/order', {
             amount: total,
             description: 'Campus 10-Min Quick Order (DesiPay)',
           });
+
+          // 2. Persist in ACID Quick Commerce Orders table
+          const orderItems = Object.entries(this.cart).map(([id, qty]) => {
+            const p = CAMPUS_CATALOG.find(item => item.id === id);
+            return {
+              productId: id,
+              name: p ? p.name : id,
+              quantity: qty,
+              unitPrice: p ? p.price : 0,
+              totalPrice: p ? p.price * qty : 0,
+            };
+          });
+
+          await api.post('/orders', {
+            items: orderItems,
+            subtotal: total,
+            deliveryFee: 0,
+            discount: 0,
+            totalAmount: total,
+            deliveryLocation: document.getElementById('selectedLocationText')?.textContent?.trim() || 'North Campus Hostel Block 4',
+            deliveryNote: 'Hostel quick doorstep delivery',
+            estimatedMinutes: 8,
+            paymentId: res.data?.paymentId,
+          }).catch(err => console.warn('Order sync note:', err.message));
 
           this.closeCartSheet();
           this.cart = {};
           this.updateCartUI();
           this.renderCampusCatalog();
 
-          this.showToast(`Order Placed! Razorpay ID: ${res.data.razorpayOrderId}`, 'success');
+          this.showToast(`⚡ Order Placed! Est. Delivery: ~8 Mins`, 'success');
 
           // Trigger soundbox voice confirmation
           this.speakSoundbox(total);
@@ -611,6 +637,11 @@ const app = {
   speakSoundbox(amount = 150) {
     this.showToast(`🔊 Soundbox: "देसीपे पर ₹${amount} प्राप्त हुए!"`, 'success');
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
+
+    // Asynchronously log to PostgreSQL soundbox_announcements table
+    if (api.getToken()) {
+      api.post('/voice/broadcast', { amount, language: 'hi-IN' }).catch(() => {});
+    }
 
     // Audio chime
     try {

@@ -1,57 +1,78 @@
 /**
- * Payments Module — Payment list & creation
+ * Payments Module — Payment Orders & History (Mobile-First)
+ * =========================================================
+ * Developed by: Om Chauhan
  */
 
 const payments = {
   init() {
-    document.getElementById('createPaymentBtn').addEventListener('click', () => {
-      document.getElementById('paymentModal').style.display = 'flex';
-    });
+    const triggerBtn = document.getElementById('createPaymentTabBtn') || document.getElementById('createPaymentBtn');
+    const paymentSheet = document.getElementById('paymentSheetOverlay') || document.getElementById('paymentModal');
 
-    document.querySelector('[data-close="paymentModal"]').addEventListener('click', () => {
-      document.getElementById('paymentModal').style.display = 'none';
-    });
+    if (triggerBtn && paymentSheet) {
+      triggerBtn.addEventListener('click', () => {
+        paymentSheet.style.display = 'flex';
+      });
+    }
 
-    document.getElementById('createPaymentForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const errEl = document.getElementById('paymentError');
-      errEl.textContent = '';
+    const form = document.getElementById('createPaymentForm');
+    if (form) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errEl = document.getElementById('paymentError');
+        if (errEl) errEl.textContent = '';
 
-      try {
-        const result = await api.post('/payments/order', {
-          amount: parseFloat(document.getElementById('payAmount').value),
-          description: document.getElementById('payDesc').value || undefined,
-        });
+        try {
+          const amount = parseFloat(document.getElementById('payAmount')?.value || '0');
+          const desc = document.getElementById('payDesc')?.value || 'Payment Order';
 
-        document.getElementById('paymentModal').style.display = 'none';
-        document.getElementById('createPaymentForm').reset();
-        app.showToast(`Payment order created! Razorpay ID: ${result.data.razorpayOrderId}`, 'success');
-        this.load();
-      } catch (error) {
-        errEl.textContent = error.message;
-      }
-    });
+          const result = await api.post('/payments/order', {
+            amount,
+            description: desc || undefined,
+          });
+
+          if (paymentSheet) paymentSheet.style.display = 'none';
+          form.reset();
+
+          app.showToast(`Payment order created! Razorpay ID: ${result.data.razorpayOrderId}`, 'success');
+
+          // Trigger soundbox voice if dukandaar
+          if (app.speakSoundbox) app.speakSoundbox(amount);
+
+          this.load();
+        } catch (error) {
+          if (errEl) errEl.textContent = error.message;
+          app.showToast(error.message, 'error');
+        }
+      });
+    }
   },
 
   async load() {
     try {
       const result = await api.get('/payments?limit=20');
-      const tbody = document.getElementById('paymentsBody');
+      const paymentsList = result?.data?.payments || [];
 
-      if (!result?.data?.payments?.length) {
-        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No payments found</td></tr>';
-        return;
+      // Mobile list
+      const mobileContainer = document.getElementById('paymentsMobileList');
+      if (mobileContainer) {
+        if (paymentsList.length === 0) {
+          mobileContainer.innerHTML = '<div class="empty-state">No payment transactions yet.</div>';
+        } else {
+          mobileContainer.innerHTML = paymentsList.map(p => `
+            <div class="m-khata-card">
+              <div class="mkc-info">
+                <strong style="color:#ffffff;font-size:0.95rem">₹${p.amount.toFixed(2)}</strong>
+                <small>${new Date(p.createdAt).toLocaleDateString('en-IN')} • ${p.paymentMethod || 'UPI'}</small>
+              </div>
+              <div class="mkc-right">
+                <span class="status status-${p.status.toLowerCase()}">${p.status}</span>
+                <span style="font-size:0.65rem;color:var(--text-muted)">${(p.razorpayPaymentId || p.razorpayOrderId || '-').slice(-10)}</span>
+              </div>
+            </div>
+          `).join('');
+        }
       }
-
-      tbody.innerHTML = result.data.payments.map(p => `
-        <tr>
-          <td>${new Date(p.createdAt).toLocaleDateString('en-IN')}</td>
-          <td style="font-weight:700">₹${p.amount.toFixed(2)}</td>
-          <td>${p.paymentMethod || '-'}</td>
-          <td><span class="status status-${p.status.toLowerCase()}">${p.status}</span></td>
-          <td style="font-size:0.75rem;color:var(--text-muted)">${(p.razorpayPaymentId || p.razorpayOrderId || '-').slice(-12)}</td>
-        </tr>
-      `).join('');
     } catch (error) {
       console.warn('Payments load error:', error.message);
     }

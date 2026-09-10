@@ -117,46 +117,52 @@ const auth = {
 
   setupForms() {
     // Login Form Submission
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('loginEmail').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      await this.executeLogin(email, password);
-    });
+    const loginForm = document.getElementById('loginForm');
+    if (loginForm) {
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('loginEmail')?.value.trim();
+        const password = document.getElementById('loginPassword')?.value;
+        await this.executeLogin(email, password);
+      });
+    }
 
     // Register Form Submission
-    document.getElementById('registerForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const errEl = document.getElementById('registerError');
-      errEl.textContent = '';
+    const regForm = document.getElementById('registerForm');
+    if (regForm) {
+      regForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const errEl = document.getElementById('registerError');
+        if (errEl) errEl.textContent = '';
 
-      const password = document.getElementById('regPassword').value;
-      const confirm = document.getElementById('regConfirm').value;
+        const password = document.getElementById('regPassword')?.value;
+        const confirm = document.getElementById('regConfirm')?.value;
 
-      if (password !== confirm) {
-        errEl.textContent = 'Passwords do not match';
-        return;
-      }
-
-      try {
-        const result = await api.post('/auth/register', {
-          fullName: document.getElementById('regName').value.trim(),
-          email: document.getElementById('regEmail').value.trim(),
-          phone: document.getElementById('regPhone').value.trim(),
-          password,
-          confirmPassword: confirm,
-          role: document.getElementById('regRole').value,
-        });
-
-        if (result.data?.accessToken) {
-          api.setToken(result.data.accessToken);
-          app.onLogin(result.data.user);
-          app.showToast('Account registered and authenticated via RS256 JWT!', 'success');
+        if (password !== confirm) {
+          if (errEl) errEl.textContent = 'Passwords do not match';
+          return;
         }
-      } catch (error) {
-        errEl.textContent = error.message;
-      }
-    });
+
+        try {
+          const result = await api.post('/auth/register', {
+            fullName: document.getElementById('regName')?.value.trim(),
+            email: document.getElementById('regEmail')?.value.trim(),
+            phone: document.getElementById('regPhone')?.value.trim(),
+            password,
+            confirmPassword: confirm,
+            role: document.getElementById('regRole')?.value,
+          });
+
+          if (result.data?.accessToken) {
+            api.setToken(result.data.accessToken);
+            app.onLogin(result.data.user);
+            app.showToast('Account registered via RS256 JWT!', 'success');
+          }
+        } catch (error) {
+          if (errEl) errEl.textContent = error.message;
+        }
+      });
+    }
   },
 
   async executeLogin(email, password) {
