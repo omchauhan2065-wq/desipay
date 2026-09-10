@@ -9,6 +9,7 @@
  */
 
 import crypto from 'crypto';
+import { env } from '../../config/env';
 import { prisma } from '../../config/prisma';
 import { getRazorpay, verifyRazorpaySignature, verifyWebhookSignature } from '../../config/razorpay';
 import { logger, securityLogger } from '../../config/logger';
@@ -49,8 +50,18 @@ export class PaymentService {
         notes: (input.metadata as any) || {},
       });
     } catch (error: any) {
-      logger.error('Razorpay order creation failed', { error: error.message, userId });
-      throw new PaymentError('Failed to create payment order. Please try again.');
+      if (env.NODE_ENV !== 'production' && (error?.statusCode === 401 || env.RAZORPAY_KEY_ID?.includes('xxx'))) {
+        logger.warn('Using mock Razorpay order for local development testing');
+        razorpayOrder = {
+          id: `order_mock_${Date.now()}`,
+          amount: amountInPaise,
+          currency: input.currency || 'INR',
+          status: 'created',
+        };
+      } else {
+        logger.error('Razorpay order creation failed', { error: error.message, userId });
+        throw new PaymentError('Failed to create payment order. Please try again.');
+      }
     }
 
     // Save to our database

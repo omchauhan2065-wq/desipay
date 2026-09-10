@@ -8,9 +8,10 @@ import { authService } from '../../src/modules/auth/auth.service';
 import { ConflictError, UnauthorizedError, AccountLockedError } from '../../src/shared/errors';
 
 describe('AuthService', () => {
+  const runId = Date.now();
   const registerInput = {
-    email: 'om.chauhan@desipay.com',
-    phone: '+919876543210',
+    email: `om.chauhan.${runId}@desipay.com`,
+    phone: `+9198${String(runId).slice(-8)}`,
     password: 'Password@123',
     confirmPassword: 'Password@123',
     fullName: 'Om Chauhan',
@@ -54,10 +55,10 @@ describe('AuthService', () => {
   });
 
   it('should lock out account after 5 consecutive failed login attempts', async () => {
-    const lockoutEmail = 'lockout@desipay.com';
+    const lockoutEmail = `lockout.${runId}@desipay.com`;
     await authService.register({
       email: lockoutEmail,
-      phone: '+919811122233',
+      phone: `+9197${String(runId).slice(-8)}`,
       password: 'SafePassword#1',
       confirmPassword: 'SafePassword#1',
       fullName: 'Lockout Test',

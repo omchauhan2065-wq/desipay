@@ -46,6 +46,10 @@ export class UserService {
         },
       });
     } catch {
+      // Prisma error fallback
+    }
+
+    if (!user) {
       user = memUsers.get(userId);
       if (user) {
         user.customerProfile = memCustomerProfiles.get(userId);
@@ -68,8 +72,9 @@ export class UserService {
     try {
       user = await prisma.user.findUnique({ where: { id: userId } });
     } catch {
-      user = memUsers.get(userId);
+      // ignore
     }
+    if (!user) user = memUsers.get(userId);
 
     if (!user) throw new NotFoundError('User not found');
     if (user.role !== 'CUSTOMER') {
@@ -77,16 +82,22 @@ export class UserService {
     }
 
     let updated: any = null;
-    try {
-      updated = await prisma.customerProfile.upsert({
-        where: { userId },
-        create: {
-          userId,
-          ...data,
-        },
-        update: data,
-      });
-    } catch {
+    if (!memUsers.has(userId)) {
+      try {
+        updated = await prisma.customerProfile.upsert({
+          where: { userId },
+          create: {
+            userId,
+            ...data,
+          },
+          update: data,
+        });
+      } catch {
+        // fallback
+      }
+    }
+
+    if (!updated) {
       const existing = memCustomerProfiles.get(userId) || { userId, id: `cust-${userId}` };
       updated = { ...existing, ...data };
       memCustomerProfiles.set(userId, updated);
@@ -111,8 +122,9 @@ export class UserService {
     try {
       user = await prisma.user.findUnique({ where: { id: userId } });
     } catch {
-      user = memUsers.get(userId);
+      // ignore
     }
+    if (!user) user = memUsers.get(userId);
 
     if (!user) throw new NotFoundError('User not found');
     if (user.role !== 'SHOPKEEPER') {
@@ -120,18 +132,24 @@ export class UserService {
     }
 
     let updated: any = null;
-    try {
-      updated = await prisma.shopkeeperProfile.upsert({
-        where: { userId },
-        create: {
-          userId,
-          shopName: data.shopName || `${user.fullName}'s Shop`,
-          shopAddress: data.shopAddress || 'Address Not Set',
-          ...data,
-        },
-        update: data,
-      });
-    } catch {
+    if (!memUsers.has(userId)) {
+      try {
+        updated = await prisma.shopkeeperProfile.upsert({
+          where: { userId },
+          create: {
+            userId,
+            shopName: data.shopName || `${user.fullName}'s Shop`,
+            shopAddress: data.shopAddress || 'Address Not Set',
+            ...data,
+          },
+          update: data,
+        });
+      } catch {
+        // fallback
+      }
+    }
+
+    if (!updated) {
       const existing = memShopkeeperProfiles.get(userId) || {
         userId,
         id: `shop-${userId}`,
@@ -161,8 +179,9 @@ export class UserService {
     try {
       user = await prisma.user.findUnique({ where: { id: userId } });
     } catch {
-      user = memUsers.get(userId);
+      // ignore
     }
+    if (!user) user = memUsers.get(userId);
 
     if (!user) throw new NotFoundError('User not found');
     if (user.role !== 'B2B_CUSTOMER') {
@@ -170,22 +189,29 @@ export class UserService {
     }
 
     let updated: any = null;
-    try {
-      updated = await prisma.b2bProfile.upsert({
-        where: { userId },
-        create: {
-          userId,
-          businessName: data.businessName || `${user.fullName}'s Business`,
-          gstNumber: 'UNREGISTERED',
-          ...data,
-        },
-        update: data,
-      });
-    } catch {
+    if (!memUsers.has(userId)) {
+      try {
+        updated = await prisma.b2bProfile.upsert({
+          where: { userId },
+          create: {
+            userId,
+            businessName: data.businessName || `${user.fullName}'s Business`,
+            gstNumber: 'UNREGISTERED',
+            ...data,
+          },
+          update: data,
+        });
+      } catch {
+        // fallback
+      }
+    }
+
+    if (!updated) {
       const existing = memB2bProfiles.get(userId) || {
         userId,
         id: `b2b-${userId}`,
         businessName: data.businessName || `${user.fullName}'s Business`,
+        gstNumber: 'UNREGISTERED',
       };
       updated = { ...existing, ...data };
       memB2bProfiles.set(userId, updated);
@@ -249,6 +275,20 @@ export class UserService {
         }),
         prisma.user.count({ where }),
       ]);
+
+      if (total === 0 && memUsers.size > 0) {
+        const all = Array.from(memUsers.values());
+        const filtered = params.role ? all.filter((u) => u.role === params.role) : all;
+        return {
+          users: filtered.slice(skip, skip + limit),
+          pagination: {
+            total: filtered.length,
+            page,
+            limit,
+            totalPages: Math.ceil(filtered.length / limit),
+          },
+        };
+      }
 
       return {
         users,
