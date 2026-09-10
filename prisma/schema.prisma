@@ -1,0 +1,363 @@
+// ============================================
+// DesiPay - Prisma Schema
+// ============================================
+// PostgreSQL schema for financial data (ACID compliant)
+// Developed by: Om Chauhan
+// ============================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================
+// User Management
+// ============================================
+
+enum Role {
+  CUSTOMER
+  SHOPKEEPER
+  B2B_CUSTOMER
+  ADMIN
+  SUPER_ADMIN
+}
+
+model User {
+  id                  String    @id @default(uuid())
+  email               String    @unique
+  phone               String    @unique
+  passwordHash        String    @map("password_hash")
+  fullName            String    @map("full_name")
+  role                Role      @default(CUSTOMER)
+  isVerified          Boolean   @default(false) @map("is_verified")
+  isActive            Boolean   @default(true) @map("is_active")
+  mfaEnabled          Boolean   @default(false) @map("mfa_enabled")
+  mfaSecret           String?   @map("mfa_secret")
+  failedLoginAttempts Int       @default(0) @map("failed_login_attempts")
+  lockUntil           DateTime? @map("lock_until")
+  lastLoginAt         DateTime? @map("last_login_at")
+  lastLoginIp         String?   @map("last_login_ip")
+  createdAt           DateTime  @default(now()) @map("created_at")
+  updatedAt           DateTime  @updatedAt @map("updated_at")
+
+  // Relations
+  customerProfile      CustomerProfile?
+  shopkeeperProfile    ShopkeeperProfile?
+  b2bProfile           B2bProfile?
+  sessions             Session[]
+  sentTransactions     Transaction[] @relation("sender")
+  receivedTransactions Transaction[] @relation("receiver")
+  khataAsShopkeeper    KhataEntry[]  @relation("shopkeeper")
+  khataAsCustomer      KhataEntry[]  @relation("customer")
+  payments             Payment[]
+  auditLogs            AuditLog[]
+  notifications        Notification[]
+
+  @@map("users")
+}
+
+model CustomerProfile {
+  id           String  @id @default(uuid())
+  userId       String  @unique @map("user_id")
+  address      String?
+  pincode      String?
+  city         String?
+  state        String?
+  languagePref String  @default("hi") @map("language_pref")
+  loyaltyPoints Int    @default(0) @map("loyalty_points")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("customer_profiles")
+}
+
+model ShopkeeperProfile {
+  id           String  @id @default(uuid())
+  userId       String  @unique @map("user_id")
+  shopName     String  @map("shop_name")
+  gstNumber    String? @map("gst_number")
+  shopAddress  String  @map("shop_address")
+  shopCity     String? @map("shop_city")
+  shopPincode  String? @map("shop_pincode")
+  category     String?
+  isVerified   Boolean @default(false) @map("is_verified")
+  upiId        String? @map("upi_id")
+  bankAccount  String? @map("bank_account") // Encrypted
+  ifscCode     String? @map("ifsc_code")
+  deliveryEnabled Boolean @default(false) @map("delivery_enabled")
+  deliveryRadius  Float?  @map("delivery_radius") // in km
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("shopkeeper_profiles")
+}
+
+model B2bProfile {
+  id            String  @id @default(uuid())
+  userId        String  @unique @map("user_id")
+  businessName  String  @map("business_name")
+  gstNumber     String  @map("gst_number")
+  tradeLicense  String? @map("trade_license")
+  creditLimit   Float   @default(0) @map("credit_limit")
+  creditUsed    Float   @default(0) @map("credit_used")
+  businessType  String? @map("business_type")
+  annualRevenue Float?  @map("annual_revenue")
+  isVerified    Boolean @default(false) @map("is_verified")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("b2b_profiles")
+}
+
+// ============================================
+// Session Management
+// ============================================
+
+model Session {
+  id           String   @id @default(uuid())
+  userId       String   @map("user_id")
+  refreshToken String   @unique @map("refresh_token")
+  userAgent    String?  @map("user_agent")
+  ipAddress    String?  @map("ip_address")
+  isActive     Boolean  @default(true) @map("is_active")
+  expiresAt    DateTime @map("expires_at")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("sessions")
+}
+
+// ============================================
+// Financial Transactions (Append-Only Ledger)
+// ============================================
+
+enum TransactionType {
+  NAGDI       // Cash payment
+  UDHAR       // Credit given
+  REPAYMENT   // Credit repaid
+  REFUND      // Refund
+  PURCHASE    // B2B purchase
+  SETTLEMENT  // Khata settlement
+}
+
+enum TransactionStatus {
+  PENDING
+  PROCESSING
+  COMPLETED
+  FAILED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentMethod {
+  CASH
+  UPI
+  CARD
+  NETBANKING
+  WALLET
+  BANK_TRANSFER
+}
+
+model Transaction {
+  id            String            @id @default(uuid())
+  senderId      String            @map("sender_id")
+  receiverId    String            @map("receiver_id")
+  amount        Float
+  type          TransactionType
+  status        TransactionStatus @default(PENDING)
+  paymentMethod PaymentMethod?    @map("payment_method")
+  referenceId   String?           @map("reference_id") // External payment ref
+  description   String?
+  metadata      Json?             // Additional data
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  sender       User         @relation("sender", fields: [senderId], references: [id])
+  receiver     User         @relation("receiver", fields: [receiverId], references: [id])
+  khataEntries KhataEntry[]
+  payments     Payment[]
+
+  @@index([senderId])
+  @@index([receiverId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+  @@map("transactions")
+}
+
+// ============================================
+// Payment Orders (Razorpay-linked)
+// ============================================
+
+model Payment {
+  id                String            @id @default(uuid())
+  transactionId     String?           @map("transaction_id")
+  userId            String            @map("user_id")
+  amount            Float
+  currency          String            @default("INR")
+  status            TransactionStatus @default(PENDING)
+  paymentMethod     PaymentMethod?    @map("payment_method")
+  razorpayOrderId   String?           @unique @map("razorpay_order_id")
+  razorpayPaymentId String?           @unique @map("razorpay_payment_id")
+  razorpaySignature String?           @map("razorpay_signature")
+  receipt           String?
+  description       String?
+  metadata          Json?
+  paidAt            DateTime?         @map("paid_at")
+  failedAt          DateTime?         @map("failed_at")
+  refundedAmount    Float             @default(0) @map("refunded_amount")
+  createdAt         DateTime          @default(now()) @map("created_at")
+  updatedAt         DateTime          @updatedAt @map("updated_at")
+
+  user        User         @relation(fields: [userId], references: [id])
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+
+  @@index([userId])
+  @@index([status])
+  @@index([razorpayOrderId])
+  @@index([createdAt])
+  @@map("payments")
+}
+
+// ============================================
+// Payment Webhook Log (Idempotent Processing)
+// ============================================
+
+model PaymentWebhookLog {
+  id          String    @id @default(uuid())
+  eventId     String    @unique @map("event_id")
+  eventType   String    @map("event_type")
+  payload     Json
+  processed   Boolean   @default(false)
+  processedAt DateTime? @map("processed_at")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@index([eventType])
+  @@index([processed])
+  @@map("payment_webhook_logs")
+}
+
+// ============================================
+// Inventory Log (Stock Change History)
+// ============================================
+
+model InventoryLog {
+  id        String   @id @default(uuid())
+  productId String   @map("product_id")
+  userId    String   @map("user_id")
+  action    String   // 'STOCK_IN', 'STOCK_OUT', 'ADJUSTMENT', 'SALE'
+  quantity  Int
+  prevStock Int      @map("prev_stock")
+  newStock  Int      @map("new_stock")
+  reason    String?
+  metadata  Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([productId])
+  @@index([userId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("inventory_logs")
+}
+
+// ============================================
+// Khata Book (Digital Ledger)
+// ============================================
+
+enum KhataEntryType {
+  CREDIT  // Udhar diya (given)
+  DEBIT   // Paisa liya (received)
+}
+
+model KhataEntry {
+  id             String         @id @default(uuid())
+  shopkeeperId   String         @map("shopkeeper_id")
+  customerId     String         @map("customer_id")
+  transactionId  String?        @map("transaction_id")
+  entryType      KhataEntryType @map("entry_type")
+  amount         Float
+  balanceAfter   Float          @map("balance_after")
+  description    String?
+  dueDate        DateTime?      @map("due_date")
+  isSettled      Boolean        @default(false) @map("is_settled")
+  settledAt      DateTime?      @map("settled_at")
+  reminderSent   Boolean        @default(false) @map("reminder_sent")
+  reminderCount  Int            @default(0) @map("reminder_count")
+  createdAt      DateTime       @default(now()) @map("created_at")
+
+  shopkeeper  User         @relation("shopkeeper", fields: [shopkeeperId], references: [id])
+  customer    User         @relation("customer", fields: [customerId], references: [id])
+  transaction Transaction? @relation(fields: [transactionId], references: [id])
+
+  @@index([shopkeeperId])
+  @@index([customerId])
+  @@index([shopkeeperId, customerId])
+  @@index([isSettled])
+  @@index([dueDate])
+  @@map("khata_entries")
+}
+
+// ============================================
+// Notifications
+// ============================================
+
+enum NotificationChannel {
+  PUSH
+  SMS
+  WHATSAPP
+  EMAIL
+}
+
+model Notification {
+  id        String              @id @default(uuid())
+  userId    String              @map("user_id")
+  channel   NotificationChannel
+  title     String
+  message   String
+  isRead    Boolean             @default(false) @map("is_read")
+  metadata  Json?
+  sentAt    DateTime?           @map("sent_at")
+  createdAt DateTime            @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isRead])
+  @@map("notifications")
+}
+
+// ============================================
+// Audit Log (Immutable — Never delete!)
+// ============================================
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  userId       String?  @map("user_id")
+  action       String
+  resourceType String   @map("resource_type")
+  resourceId   String?  @map("resource_id")
+  ipAddress    String?  @map("ip_address")
+  userAgent    String?  @map("user_agent")
+  metadata     Json?
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([action])
+  @@index([resourceType])
+  @@index([createdAt])
+  @@map("audit_logs")
+}

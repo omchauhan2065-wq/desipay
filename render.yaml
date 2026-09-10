@@ -1,0 +1,67 @@
+# ============================================
+# DesiPay — Render Infrastructure as Code Blueprint
+# ============================================
+# Free-tier deployment specification
+# Deploys:
+#   1. DesiPay Backend API (Node.js Web Service)
+#   2. DesiPay Minimalist Dashboard (Static Site)
+# ============================================
+
+services:
+  # 1. Express API Gateway & Backend
+  - type: web
+    name: desipay-api
+    runtime: node
+    plan: free
+    region: singapore # Closest free region to India (low latency for DesiPay)
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3000
+      - key: API_VERSION
+        value: v1
+      - key: APP_NAME
+        value: DesiPay
+      - key: CORS_ORIGIN
+        value: '*' # Update with your frontend static URL once created
+      - key: DATABASE_URL
+        sync: false # Set in Render dashboard (e.g. Neon connection string)
+      - key: MONGODB_URI
+        sync: false # Set in Render dashboard (e.g. MongoDB Atlas SRV URI)
+      - key: REDIS_URL
+        sync: false # Set in Render dashboard (e.g. Upstash rediss:// URI)
+      - key: SESSION_SECRET
+        generateValue: true
+      - key: BCRYPT_SALT_ROUNDS
+        value: 12
+      - key: JWT_ACCESS_TOKEN_EXPIRES
+        value: 15m
+      - key: JWT_REFRESH_TOKEN_EXPIRES
+        value: 7d
+      - key: JWT_PRIVATE_KEY_BASE64
+        sync: false # Set in Render dashboard
+      - key: JWT_PUBLIC_KEY_BASE64
+        sync: false # Set in Render dashboard
+      - key: RAZORPAY_KEY_ID
+        sync: false
+      - key: RAZORPAY_KEY_SECRET
+        sync: false
+      - key: RAZORPAY_WEBHOOK_SECRET
+        sync: false
+
+  # 2. Minimalist SPA Dashboard
+  - type: web
+    name: desipay-dashboard
+    runtime: static
+    plan: free
+    region: singapore
+    buildCommand: ""
+    staticPublishPath: ./frontend/public
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html

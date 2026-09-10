@@ -1,0 +1,88 @@
+# ============================================
+# DesiPay - Docker Compose (Development)
+# ============================================
+# Run: docker-compose up -d
+# Starts PostgreSQL, MongoDB, Redis, MinIO
+# ============================================
+
+version: '3.9'
+
+services:
+  # PostgreSQL - Primary Database (Financial Data)
+  postgres:
+    image: postgres:16-alpine
+    container_name: desipay-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: desipay
+      POSTGRES_USER: desipay
+      POSTGRES_PASSWORD: desipay_secure_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U desipay"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MongoDB - Product Catalog
+  mongodb:
+    image: mongo:7
+    container_name: desipay-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: desipay
+      MONGO_INITDB_ROOT_PASSWORD: desipay_mongo_pass
+      MONGO_INITDB_DATABASE: desipay_catalog
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis - Sessions, Cache, Queues
+  redis:
+    image: redis:7-alpine
+    container_name: desipay-redis
+    restart: unless-stopped
+    command: redis-server --requirepass desipay_redis_pass --maxmemory 256mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "desipay_redis_pass", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # MinIO - Object Storage (S3-compatible)
+  minio:
+    image: minio/minio:latest
+    container_name: desipay-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console
+    volumes:
+      - minio_data:/data
+
+volumes:
+  postgres_data:
+    driver: local
+  mongo_data:
+    driver: local
+  redis_data:
+    driver: local
+  minio_data:
+    driver: local

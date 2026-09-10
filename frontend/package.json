@@ -1,0 +1,13 @@
+{
+  "name": "desipay-dashboard",
+  "version": "0.1.0",
+  "description": "DesiPay Minimalistic Admin Dashboard",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1"
+  }
+}

@@ -1,0 +1,100 @@
+# ============================================
+# DesiPay — Live Uptime & Health Monitor
+# ============================================
+# Runs every 15 minutes via cron schedule
+# Probes /health and /ready endpoints
+# Verifies Database, MongoDB, and Redis connectivity
+# ============================================
+
+name: 📡 Live Uptime & Health Monitor
+
+on:
+  schedule:
+    - cron: '*/15 * * * *' # Every 15 minutes
+  workflow_dispatch:        # Manual trigger
+
+jobs:
+  health-check:
+    name: 🩺 Probe Production API
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify Configuration
+        id: check_config
+        run: |
+          if [ -z "${{ vars.PRODUCTION_URL }}" ] && [ -z "${{ secrets.PRODUCTION_URL }}" ]; then
+            echo "configured=false" >> $GITHUB_OUTPUT
+            echo "⚠️ PRODUCTION_URL is not set yet in GitHub Secrets or Variables."
+            echo "Once you deploy on Render/Koyeb, set PRODUCTION_URL (e.g. https://desipay-api.onrender.com) in GitHub Settings."
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+            PROD_URL="${{ vars.PRODUCTION_URL || secrets.PRODUCTION_URL }}"
+            # Strip trailing slash if present
+            PROD_URL="${PROD_URL%/}"
+            echo "target_url=$PROD_URL" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Ping /health Endpoint
+        if: steps.check_config.outputs.configured == 'true'
+        id: ping_health
+        run: |
+          TARGET="${{ steps.check_config.outputs.target_url }}/health"
+          echo "Probing: $TARGET"
+          
+          START_TIME=$(date +%s%3N)
+          HTTP_RESPONSE=$(curl -s -w "\n%{http_code}\n%{time_total}" "$TARGET" || echo "000\n0")
+          END_TIME=$(date +%s%3N)
+          
+          HTTP_CODE=$(echo "$HTTP_RESPONSE" | tail -n 2 | head -n 1)
+          TIME_TOTAL=$(echo "$HTTP_RESPONSE" | tail -n 1)
+          BODY=$(echo "$HTTP_RESPONSE" | head -n -2)
+          LATENCY=$((END_TIME - START_TIME))
+
+          echo "HTTP Code: $HTTP_CODE"
+          echo "Latency: ${LATENCY}ms"
+          echo "Response Body: $BODY"
+
+          if [ "$HTTP_CODE" -ne 200 ]; then
+            echo "❌ /health check failed with status code $HTTP_CODE"
+            exit 1
+          fi
+
+          echo "latency=$LATENCY" >> $GITHUB_OUTPUT
+          echo "status=healthy" >> $GITHUB_OUTPUT
+
+      - name: Ping /ready Endpoint (Deep Diagnostic)
+        if: steps.check_config.outputs.configured == 'true'
+        id: ping_ready
+        run: |
+          TARGET="${{ steps.check_config.outputs.target_url }}/ready"
+          echo "Probing deep readiness: $TARGET"
+          
+          RESPONSE=$(curl -s -w "\n%{http_code}" "$TARGET")
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n 1)
+          BODY=$(echo "$RESPONSE" | head -n -1)
+
+          echo "Readiness HTTP Code: $HTTP_CODE"
+          echo "Readiness Body: $BODY"
+
+          # 200 = fully ready, 503 = degraded
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "readiness=all_ok" >> $GITHUB_OUTPUT
+          else
+            echo "readiness=degraded" >> $GITHUB_OUTPUT
+            echo "::warning title=DesiPay Degraded::One or more subsystems (DB/Redis/Mongo) are degraded."
+          fi
+
+      - name: Generate Monitoring Summary
+        run: |
+          echo "## 📊 DesiPay Live Health Report" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status | Value |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ steps.check_config.outputs.configured }}" = "true" ]; then
+            echo "| Target URL | 🌐 Monitored | \`${{ steps.check_config.outputs.target_url }}\` |" >> $GITHUB_STEP_SUMMARY
+            echo "| API Liveness | ✅ Healthy | Latency: ${{ steps.ping_health.outputs.latency }}ms |" >> $GITHUB_STEP_SUMMARY
+            echo "| DB & Cache Readiness | 🔍 Diagnostic | \`${{ steps.ping_ready.outputs.readiness }}\` |" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "| Target URL | ⏳ Pending Setup | Set \`PRODUCTION_URL\` in GitHub Secrets |" >> $GITHUB_STEP_SUMMARY
+            echo "| Uptime Monitor | 🟡 Standby | Ready to activate on first deploy |" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "_Probe executed at $(date -u '+%Y-%m-%d %H:%M:%S UTC')_" >> $GITHUB_STEP_SUMMARY

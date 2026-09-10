@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="DesiPay — Cyber-Secure Payment Gateway & Digital Khata Platform Dashboard">
+  <title>DesiPay Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+<body>
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      <div class="logo">
+        <span class="logo-icon">🏦</span>
+        <span class="logo-text">DesiPay</span>
+      </div>
+      <span class="logo-badge">BETA</span>
+    </div>
+
+    <ul class="nav-list" id="navList">
+      <li class="nav-item active" data-page="dashboard">
+        <span class="nav-icon">📊</span>
+        <span class="nav-label">Dashboard</span>
+      </li>
+      <li class="nav-item" data-page="payments">
+        <span class="nav-icon">💳</span>
+        <span class="nav-label">Payments</span>
+      </li>
+      <li class="nav-item" data-page="khata">
+        <span class="nav-icon">📒</span>
+        <span class="nav-label">Khata Book</span>
+      </li>
+      <li class="nav-item" data-page="inventory">
+        <span class="nav-icon">📦</span>
+        <span class="nav-label">Inventory</span>
+      </li>
+      <li class="nav-item" data-page="notifications">
+        <span class="nav-icon">🔔</span>
+        <span class="nav-label">Notifications</span>
+        <span class="badge" id="notifBadge" style="display:none">0</span>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">
+      <div class="user-info" id="userInfo" style="display:none">
+        <div class="user-avatar" id="userAvatar">O</div>
+        <div class="user-details">
+          <span class="user-name" id="userName">-</span>
+          <span class="user-role" id="userRole">-</span>
+        </div>
+      </div>
+      <button class="btn btn-sm btn-outline" id="logoutBtn" style="display:none">Logout</button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <header class="topbar">
+      <button class="menu-toggle" id="menuToggle">☰</button>
+      <h1 class="page-title" id="pageTitle">Dashboard</h1>
+      <div class="topbar-actions">
+        <span class="api-status" id="apiStatus">● Connecting...</span>
+      </div>
+    </header>
+
+    <!-- Auth Page (shown when not logged in) -->
+    <section class="page" id="page-auth">
+      <div class="auth-container">
+        <div class="auth-card glass-card">
+          <div class="auth-header">
+            <span class="auth-logo">🏦</span>
+            <h2>DesiPay</h2>
+            <p class="auth-subtitle">Secure Payment Gateway & Digital Khata</p>
+          </div>
+
+          <div class="auth-tabs">
+            <button class="auth-tab active" data-tab="login">Login</button>
+            <button class="auth-tab" data-tab="register">Register</button>
+          </div>
+
+          <!-- Login Form -->
+          <form id="loginForm" class="auth-form">
+            <div class="form-group">
+              <label for="loginEmail">Email</label>
+              <input type="email" id="loginEmail" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+              <label for="loginPassword">Password</label>
+              <input type="password" id="loginPassword" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Sign In</button>
+            <div class="form-error" id="loginError"></div>
+          </form>
+
+          <!-- Register Form -->
+          <form id="registerForm" class="auth-form" style="display:none">
+            <div class="form-group">
+              <label for="regName">Full Name</label>
+              <input type="text" id="regName" placeholder="Om Chauhan" required>
+            </div>
+            <div class="form-group">
+              <label for="regEmail">Email</label>
+              <input type="email" id="regEmail" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+              <label for="regPhone">Phone (Indian)</label>
+              <input type="tel" id="regPhone" placeholder="+919876543210" required>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="regPassword">Password</label>
+                <input type="password" id="regPassword" placeholder="••••••••" required>
+              </div>
+              <div class="form-group">
+                <label for="regConfirm">Confirm</label>
+                <input type="password" id="regConfirm" placeholder="••••••••" required>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="regRole">Role</label>
+              <select id="regRole">
+                <option value="CUSTOMER">Customer</option>
+                <option value="SHOPKEEPER">Shopkeeper</option>
+                <option value="B2B_CUSTOMER">B2B Customer</option>
+              </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Create Account</button>
+            <div class="form-error" id="registerError"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Dashboard Page -->
+    <section class="page" id="page-dashboard" style="display:none">
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card glass-card">
+          <div class="stat-icon">💰</div>
+          <div class="stat-info">
+            <span class="stat-value" id="statRevenue">₹0</span>
+            <span class="stat-label">Total Revenue</span>
+          </div>
+        </div>
+        <div class="stat-card glass-card">
+          <div class="stat-icon">📒</div>
+          <div class="stat-info">
+            <span class="stat-value" id="statUdhar">₹0</span>
+            <span class="stat-label">Outstanding Udhar</span>
+          </div>
+        </div>
+        <div class="stat-card glass-card">
+          <div class="stat-icon">📦</div>
+          <div class="stat-info">
+            <span class="stat-value" id="statProducts">0</span>
+            <span class="stat-label">Active Products</span>
+          </div>
+        </div>
+        <div class="stat-card glass-card">
+          <div class="stat-icon">⚠️</div>
+          <div class="stat-info">
+            <span class="stat-value" id="statAlerts">0</span>
+            <span class="stat-label">Low Stock Alerts</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="content-grid">
+        <div class="glass-card">
+          <h3 class="card-title">Recent Transactions</h3>
+          <div class="table-container">
+            <table class="data-table" id="recentTxTable">
+              <thead>
+                <tr><th>Date</th><th>Type</th><th>Amount</th><th>Status</th></tr>
+              </thead>
+              <tbody id="recentTxBody">
+                <tr><td colspan="4" class="empty-state">No transactions yet</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="glass-card">
+          <h3 class="card-title">Top Debtors</h3>
+          <div class="table-container">
+            <table class="data-table" id="debtorsTable">
+              <thead>
+                <tr><th>Customer</th><th>Balance</th><th>Phone</th></tr>
+              </thead>
+              <tbody id="debtorsBody">
+                <tr><td colspan="3" class="empty-state">No outstanding credit</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Payments Page -->
+    <section class="page" id="page-payments" style="display:none">
+      <div class="page-actions">
+        <button class="btn btn-primary" id="createPaymentBtn">+ New Payment</button>
+      </div>
+      <div class="glass-card">
+        <h3 class="card-title">Payment History</h3>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr><th>Date</th><th>Amount</th><th>Method</th><th>Status</th><th>Ref ID</th></tr>
+            </thead>
+            <tbody id="paymentsBody">
+              <tr><td colspan="5" class="empty-state">No payments found</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Create Payment Modal -->
+      <div class="modal-overlay" id="paymentModal" style="display:none">
+        <div class="modal glass-card">
+          <div class="modal-header">
+            <h3>Create Payment Order</h3>
+            <button class="modal-close" data-close="paymentModal">×</button>
+          </div>
+          <form id="createPaymentForm">
+            <div class="form-group">
+              <label for="payAmount">Amount (₹)</label>
+              <input type="number" id="payAmount" step="0.01" min="1" placeholder="500.00" required>
+            </div>
+            <div class="form-group">
+              <label for="payDesc">Description</label>
+              <input type="text" id="payDesc" placeholder="Payment for order #123">
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Create Order</button>
+            <div class="form-error" id="paymentError"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Khata Page -->
+    <section class="page" id="page-khata" style="display:none">
+      <div class="page-actions">
+        <button class="btn btn-primary" id="createKhataBtn">+ New Entry</button>
+      </div>
+      <div class="content-grid">
+        <div class="glass-card">
+          <h3 class="card-title">Khata Ledger</h3>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr><th>Date</th><th>Customer</th><th>Type</th><th>Amount</th><th>Balance</th><th>Status</th></tr>
+              </thead>
+              <tbody id="khataBody">
+                <tr><td colspan="6" class="empty-state">No khata entries</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create Khata Modal -->
+      <div class="modal-overlay" id="khataModal" style="display:none">
+        <div class="modal glass-card">
+          <div class="modal-header">
+            <h3>New Khata Entry</h3>
+            <button class="modal-close" data-close="khataModal">×</button>
+          </div>
+          <form id="createKhataForm">
+            <div class="form-group">
+              <label for="khataCustomerId">Customer ID</label>
+              <input type="text" id="khataCustomerId" placeholder="Customer UUID" required>
+            </div>
+            <div class="form-group">
+              <label for="khataType">Entry Type</label>
+              <select id="khataType">
+                <option value="CREDIT">Udhar Diya (Credit)</option>
+                <option value="DEBIT">Paisa Liya (Debit)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="khataAmount">Amount (₹)</label>
+              <input type="number" id="khataAmount" step="0.01" min="1" required>
+            </div>
+            <div class="form-group">
+              <label for="khataDesc">Description</label>
+              <input type="text" id="khataDesc" placeholder="Grocery items">
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Record Entry</button>
+            <div class="form-error" id="khataError"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Inventory Page -->
+    <section class="page" id="page-inventory" style="display:none">
+      <div class="page-actions">
+        <button class="btn btn-primary" id="addProductBtn">+ Add Product</button>
+        <div class="search-bar">
+          <input type="text" id="inventorySearch" placeholder="Search products or scan barcode...">
+        </div>
+      </div>
+      <div class="glass-card">
+        <h3 class="card-title">Product Inventory</h3>
+        <div class="table-container">
+          <table class="data-table">
+            <thead>
+              <tr><th>Product</th><th>SKU</th><th>Price</th><th>Stock</th><th>Category</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="inventoryBody">
+              <tr><td colspan="6" class="empty-state">No products found</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Add Product Modal -->
+      <div class="modal-overlay" id="productModal" style="display:none">
+        <div class="modal glass-card modal-lg">
+          <div class="modal-header">
+            <h3>Add Product</h3>
+            <button class="modal-close" data-close="productModal">×</button>
+          </div>
+          <form id="addProductForm">
+            <div class="form-row">
+              <div class="form-group"><label for="prodName">Name</label><input type="text" id="prodName" required></div>
+              <div class="form-group"><label for="prodSku">SKU</label><input type="text" id="prodSku" required></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label for="prodBarcode">Barcode</label><input type="text" id="prodBarcode"></div>
+              <div class="form-group"><label for="prodCategory">Category</label><input type="text" id="prodCategory" required></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label for="prodMrp">MRP (₹)</label><input type="number" id="prodMrp" step="0.01" required></div>
+              <div class="form-group"><label for="prodSelling">Selling Price (₹)</label><input type="number" id="prodSelling" step="0.01" required></div>
+              <div class="form-group"><label for="prodCost">Cost Price (₹)</label><input type="number" id="prodCost" step="0.01" required></div>
+            </div>
+            <div class="form-row">
+              <div class="form-group"><label for="prodStock">Initial Stock</label><input type="number" id="prodStock" value="0"></div>
+              <div class="form-group">
+                <label for="prodUnit">Unit</label>
+                <select id="prodUnit"><option>piece</option><option>kg</option><option>g</option><option>litre</option><option>ml</option><option>dozen</option><option>pack</option><option>box</option></select>
+              </div>
+              <div class="form-group">
+                <label for="prodGst">GST Rate</label>
+                <select id="prodGst"><option value="0">0%</option><option value="5">5%</option><option value="12">12%</option><option value="18">18%</option><option value="28">28%</option></select>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Add Product</button>
+            <div class="form-error" id="productError"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- Notifications Page -->
+    <section class="page" id="page-notifications" style="display:none">
+      <div class="page-actions">
+        <button class="btn btn-outline" id="markAllReadBtn">✓ Mark All Read</button>
+      </div>
+      <div class="glass-card">
+        <h3 class="card-title">Notifications</h3>
+        <div class="notification-list" id="notificationList">
+          <div class="empty-state">No notifications</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+  </main>
+
+  <!-- Scripts -->
+  <script src="/js/api.js"></script>
+  <script src="/js/auth.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/payments.js"></script>
+  <script src="/js/khata.js"></script>
+  <script src="/js/inventory.js"></script>
+  <script src="/js/notifications.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

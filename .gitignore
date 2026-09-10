@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Build output
+dist/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Keys (NEVER commit private keys)
+keys/
+*.pem
+*.key
+
+# Logs
+logs/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Docker volumes
+data/
+postgres_data/
+mongo_data/
+redis_data/
+
+# Coverage
+coverage/
+
+# Temporary files
+tmp/
+temp/
+
+# Reference repos (not part of DesiPay source)
+references/
