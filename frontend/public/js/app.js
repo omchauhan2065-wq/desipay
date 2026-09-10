@@ -109,6 +109,9 @@ const app = {
   activeTab: 'Store',
   currentUser: null,
   cart: {}, // { productId: qty }
+  selectedSoundboxAmount: 150,
+  selectedSoundboxLang: 'hi-IN',
+  soundboxVolume: 85,
 
   async init() {
     // Initialize sub-modules
@@ -233,6 +236,8 @@ const app = {
       this.loadKhataTabData();
     } else if (tabName === 'Payments') {
       this.loadPaymentsTabData();
+    } else if (tabName === 'Soundbox') {
+      this.loadVoiceHistory();
     } else if (tabName === 'Account') {
       auth.renderJwtInspector();
     }
@@ -579,8 +584,60 @@ const app = {
     const testSoundboxBtn = document.getElementById('testSoundboxVoiceBtn');
     if (testSoundboxBtn) {
       testSoundboxBtn.addEventListener('click', () => {
-        this.speakSoundbox(150);
+        this.speakSoundbox(this.selectedSoundboxAmount || 150, this.selectedSoundboxLang || 'hi-IN');
       });
+    }
+
+    // Soundbox Amount Chips
+    document.querySelectorAll('.sb-amount-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.sb-amount-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        this.selectedSoundboxAmount = parseFloat(chip.dataset.amt);
+        this.updateSoundboxBtnText();
+      });
+    });
+
+    // Soundbox Language Chips
+    document.querySelectorAll('.sb-lang-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.sb-lang-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        this.selectedSoundboxLang = chip.dataset.lang;
+        this.updateSoundboxBtnText();
+      });
+    });
+
+    // Soundbox Volume Steppers
+    const btnVolUp = document.getElementById('btnSbVolUp');
+    const btnVolDown = document.getElementById('btnSbVolDown');
+    if (btnVolUp) {
+      btnVolUp.addEventListener('click', () => {
+        this.soundboxVolume = Math.min(100, (this.soundboxVolume || 85) + 5);
+        const lbl = document.getElementById('soundboxVolLabel');
+        if (lbl) lbl.textContent = `${this.soundboxVolume}%`;
+        this.showToast(`Soundbox Volume: ${this.soundboxVolume}%`, 'info');
+        if (api.getToken()) {
+          api.patch('/voice/device/settings', { volumeLevel: this.soundboxVolume }).catch(() => {});
+        }
+      });
+    }
+    if (btnVolDown) {
+      btnVolDown.addEventListener('click', () => {
+        this.soundboxVolume = Math.max(10, (this.soundboxVolume || 85) - 5);
+        const lbl = document.getElementById('soundboxVolLabel');
+        if (lbl) lbl.textContent = `${this.soundboxVolume}%`;
+        this.showToast(`Soundbox Volume: ${this.soundboxVolume}%`, 'info');
+        if (api.getToken()) {
+          api.patch('/voice/device/settings', { volumeLevel: this.soundboxVolume }).catch(() => {});
+        }
+      });
+    }
+
+    // Refresh Voice History Button
+    const refreshVoiceBtn = document.getElementById('refreshVoiceHistoryBtn');
+    if (refreshVoiceBtn) {
+      refreshVoiceBtn.addEventListener('click', () => this.loadVoiceHistory());
     }
 
     // Print Standee
@@ -604,14 +661,36 @@ const app = {
     const btnPayIn = document.getElementById('btnVyaparPaymentIn');
     if (btnPayIn) {
       btnPayIn.addEventListener('click', () => {
-        document.getElementById('paymentSheetOverlay').style.display = 'flex';
+        const sheet = document.getElementById('khataSheetOverlay');
+        if (sheet) {
+          const radioDebit = document.getElementById('radioKhataDebit');
+          if (radioDebit) radioDebit.checked = true;
+          const khataType = document.getElementById('khataType');
+          if (khataType) khataType.value = 'DEBIT';
+          const amtInput = document.getElementById('khataAmount');
+          if (amtInput) amtInput.value = 180;
+          const descInput = document.getElementById('khataDesc');
+          if (descInput) descInput.value = 'Paisa Vasooli (Payment Received)';
+          sheet.style.display = 'flex';
+        }
       });
     }
 
     const btnUdharOut = document.getElementById('btnVyaparUdharOut');
     if (btnUdharOut) {
       btnUdharOut.addEventListener('click', () => {
-        document.getElementById('khataSheetOverlay').style.display = 'flex';
+        const sheet = document.getElementById('khataSheetOverlay');
+        if (sheet) {
+          const radioCredit = document.getElementById('radioKhataCredit');
+          if (radioCredit) radioCredit.checked = true;
+          const khataType = document.getElementById('khataType');
+          if (khataType) khataType.value = 'CREDIT';
+          const amtInput = document.getElementById('khataAmount');
+          if (amtInput) amtInput.value = 120;
+          const descInput = document.getElementById('khataDesc');
+          if (descInput) descInput.value = 'Naya Udhar (Credit Given)';
+          sheet.style.display = 'flex';
+        }
       });
     }
 
@@ -630,20 +709,37 @@ const app = {
     }
   },
 
+  updateSoundboxBtnText() {
+    const btnText = document.getElementById('testVoiceBtnText');
+    if (!btnText) return;
+    const amt = this.selectedSoundboxAmount || 150;
+    const isHindi = this.selectedSoundboxLang !== 'en-IN';
+    btnText.textContent = isHindi 
+      ? `Play Audio: "देसीपे पर ₹${amt} प्राप्त हुए!"` 
+      : `Play Audio: "Received ₹${amt} on DesiPay!"`;
+  },
+
   /**
    * Soundbox Voice Announcement:
-   * Chime + Hindi Speech Synthesis
+   * Chime + Speech Synthesis (Hindi / English)
    */
-  speakSoundbox(amount = 150) {
-    this.showToast(`🔊 Soundbox: "देसीपे पर ₹${amount} प्राप्त हुए!"`, 'success');
+  speakSoundbox(amount = 150, language = 'hi-IN') {
+    const isHindi = language !== 'en-IN';
+    const textMsg = isHindi 
+      ? `देसीपे पर ₹${amount} प्राप्त हुए!` 
+      : `Received ₹${amount} on DesiPay!`;
+
+    this.showToast(`🔊 Soundbox: "${textMsg}"`, 'success');
     if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
 
     // Asynchronously log to PostgreSQL soundbox_announcements table
     if (api.getToken()) {
-      api.post('/voice/broadcast', { amount, language: 'hi-IN' }).catch(() => {});
+      api.post('/voice/broadcast', { amount, language }).then(() => {
+        this.loadVoiceHistory();
+      }).catch(() => {});
     }
 
-    // Audio chime
+    // Audio chime (D5 -> A5 dual-tone)
     try {
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       const osc = audioCtx.createOscillator();
@@ -659,24 +755,54 @@ const app = {
       osc.stop(audioCtx.currentTime + 0.4);
     } catch {}
 
-    // Hindi Voice
+    // Speech Voice
     setTimeout(() => {
       if ('speechSynthesis' in window) {
         window.speechSynthesis.cancel();
-        const text = `देसीपे पर ${amount} रुपये प्राप्त हुए! ${amount} Rupees received on DesiPay!`;
-        const utter = new SpeechSynthesisUtterance(text);
+        const speechText = isHindi 
+          ? `देसीपे पर ${amount} रुपये प्राप्त हुए!` 
+          : `${amount} Rupees received on DesiPay!`;
+        const utter = new SpeechSynthesisUtterance(speechText);
         utter.rate = 0.95;
         utter.pitch = 1.05;
 
         const voices = window.speechSynthesis.getVoices();
-        const indianVoice = voices.find(v => 
-          v.lang.includes('hi') || v.lang.includes('IN') || v.name.includes('India') || v.name.includes('Hindi')
-        );
-        if (indianVoice) utter.voice = indianVoice;
+        const matchedVoice = isHindi 
+          ? voices.find(v => v.lang.includes('hi') || v.lang.includes('IN') || v.name.includes('India') || v.name.includes('Hindi'))
+          : voices.find(v => v.lang.includes('en-IN') || v.name.includes('India') || v.lang.includes('en'));
 
+        if (matchedVoice) utter.voice = matchedVoice;
         window.speechSynthesis.speak(utter);
       }
     }, 450);
+  },
+
+  async loadVoiceHistory() {
+    const list = document.getElementById('soundboxHistoryList');
+    if (!list) return;
+
+    try {
+      const res = await api.get('/voice/history').catch(() => ({ data: { history: [] } }));
+      const history = res?.data?.history || [];
+
+      if (history.length === 0) {
+        list.innerHTML = '<div class="empty-state" style="padding:0.8rem">No voice broadcasts recorded yet.</div>';
+        return;
+      }
+
+      list.innerHTML = history.slice(0, 5).map(h => `
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0.6rem;background:rgba(0,0,0,0.3);border-radius:6px;font-size:0.75rem">
+          <div>
+            <span style="color:#22c55e;font-weight:700">₹${h.amount}</span>
+            <small style="color:var(--text-muted);margin-left:6px">${new Date(h.broadcastedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</small>
+            <div style="font-size:0.7rem;color:var(--text-secondary)">${h.voiceText}</div>
+          </div>
+          <button type="button" class="btn btn-xs btn-outline" onclick="app.speakSoundbox(${h.amount}, '${h.language || 'hi-IN'}')">▶ Replay</button>
+        </div>
+      `).join('');
+    } catch {
+      list.innerHTML = '<div class="empty-state" style="padding:0.8rem">Tap Play Audio to log broadcast</div>';
+    }
   },
 
   async loadVyaparStats() {
@@ -714,8 +840,9 @@ const app = {
               <strong>${d.fullName}</strong>
               <small>${d.phone || 'Phone'} • ${d.lastDate || 'Recent'}</small>
             </div>
-            <div class="mkc-right">
+            <div class="mkc-right" style="display:flex;gap:5px;align-items:center">
               <span class="mkc-amount">₹${d.balance.toFixed(2)}</span>
+              <button type="button" class="btn btn-xs btn-primary" style="font-size:0.68rem;padding:3px 8px;font-weight:700" onclick="khata.settleDebtor('${d.fullName}', ${d.balance})">✅ Settle</button>
               <a href="${waLink}" target="_blank" class="btn-whatsapp-sm">
                 <span>📲</span>
                 <span>WhatsApp</span>
@@ -805,6 +932,13 @@ const app = {
     if (closeKhataSheet) {
       closeKhataSheet.addEventListener('click', () => {
         document.getElementById('khataSheetOverlay').style.display = 'none';
+      });
+    }
+
+    const closeJwtModalBtn = document.getElementById('closeJwtCockpitBtn');
+    if (closeJwtModalBtn) {
+      closeJwtModalBtn.addEventListener('click', () => {
+        document.getElementById('jwtCockpitModal').style.display = 'none';
       });
     }
   },

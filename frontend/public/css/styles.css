@@ -1298,6 +1298,45 @@ body {
 .toast-error { border-left: 3px solid var(--danger); }
 .toast-info { border-left: 3px solid var(--accent-cyan); }
 
+/* Interactive Utility Chips & Buttons */
+.btn-xs {
+  padding: 0.25rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.preset-chip, .khata-preset-chip, .sb-amount-chip, .sb-lang-chip, .btn-customer-chip, .pay-desc-tag {
+  background: rgba(18, 26, 47, 0.85);
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  border-radius: 6px;
+  padding: 0.25rem 0.55rem;
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.preset-chip:hover, .khata-preset-chip:hover, .sb-amount-chip:hover, .sb-lang-chip:hover, .btn-customer-chip:hover, .pay-desc-tag:hover {
+  border-color: var(--accent-cyan);
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+.preset-chip.active, .khata-preset-chip.active, .sb-amount-chip.active, .sb-lang-chip.active, .btn-customer-chip.active {
+  background: var(--primary-gradient);
+  border-color: var(--accent-cyan);
+  color: #ffffff;
+  font-weight: 700;
+  box-shadow: 0 0 8px rgba(0, 240, 255, 0.3);
+}
+
+.preset-chip:active, .khata-preset-chip:active, .sb-amount-chip:active, .sb-lang-chip:active, .btn-customer-chip:active {
+  transform: scale(0.95);
+}
+
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideIn { from { transform: translateY(-10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
 

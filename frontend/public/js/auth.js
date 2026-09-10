@@ -58,10 +58,24 @@ const auth = {
         document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
         const isLogin = tab.dataset.tab === 'login';
-        document.getElementById('loginForm').style.display = isLogin ? 'block' : 'none';
-        document.getElementById('registerForm').style.display = isLogin ? 'none' : 'block';
+        const loginForm = document.getElementById('loginForm');
+        const regForm = document.getElementById('registerForm');
+        if (loginForm) loginForm.style.display = isLogin ? 'block' : 'none';
+        if (regForm) regForm.style.display = isLogin ? 'none' : 'block';
       });
     });
+
+    const toggleCustomBtn = document.getElementById('toggleCustomAuthBtn');
+    const customContainer = document.getElementById('customAuthContainer');
+    if (toggleCustomBtn && customContainer) {
+      toggleCustomBtn.addEventListener('click', () => {
+        const isHidden = customContainer.style.display === 'none';
+        customContainer.style.display = isHidden ? 'block' : 'none';
+        toggleCustomBtn.innerHTML = isHidden 
+          ? '<span>📝</span> <span>Hide Manual Credentials Drawer ▴</span>' 
+          : '<span>📝</span> <span>Manual Email & Password Sign In / Sign Up ▾</span>';
+      });
+    }
   },
 
   /**
@@ -75,25 +89,10 @@ const auth = {
         const creds = DEMO_CREDENTIALS[roleKey];
         if (!creds) return;
 
-        // Switch to login tab if on register
-        const loginTab = document.querySelector('.auth-tab[data-tab="login"]');
-        if (loginTab && !loginTab.classList.contains('active')) {
-          loginTab.click();
-        }
-
         const emailInput = document.getElementById('loginEmail');
         const passInput = document.getElementById('loginPassword');
-
-        emailInput.value = creds.email;
-        passInput.value = creds.password;
-
-        // Visual flash feedback on inputs
-        emailInput.style.borderColor = 'var(--accent-cyan)';
-        passInput.style.borderColor = 'var(--accent-cyan)';
-        setTimeout(() => {
-          emailInput.style.borderColor = '';
-          passInput.style.borderColor = '';
-        }, 1200);
+        if (emailInput) emailInput.value = creds.email;
+        if (passInput) passInput.value = creds.password;
 
         app.showToast(`1-Click Demo: Signing in as ${creds.name} (${creds.role})...`, 'info');
 
@@ -167,7 +166,7 @@ const auth = {
 
   async executeLogin(email, password) {
     const errEl = document.getElementById('loginError');
-    errEl.textContent = '';
+    if (errEl) errEl.textContent = '';
 
     try {
       const result = await api.post('/auth/login', { email, password });
@@ -177,10 +176,10 @@ const auth = {
         app.onLogin(result.data.user);
         app.showToast(`Welcome back, ${result.data.user.fullName}!`, 'success');
       } else if (result.data?.mfaRequired) {
-        errEl.textContent = 'MFA verification required for this account';
+        if (errEl) errEl.textContent = 'MFA verification required for this account';
       }
     } catch (error) {
-      errEl.textContent = error.message;
+      if (errEl) errEl.textContent = error.message;
       app.showToast(error.message, 'error');
     }
   },
@@ -203,9 +202,6 @@ const auth = {
     const copyBtn = document.getElementById('copyJwtBtn');
     if (copyBtn) copyBtn.addEventListener('click', copyTokenHandler);
 
-    const modalCopyBtn = document.getElementById('modalCopyJwtBtn');
-    if (modalCopyBtn) modalCopyBtn.addEventListener('click', copyTokenHandler);
-
     // Refresh Token Action
     const refreshTokenHandler = async () => {
       try {
@@ -223,9 +219,6 @@ const auth = {
     const refreshBtn = document.getElementById('refreshJwtBtn');
     if (refreshBtn) refreshBtn.addEventListener('click', refreshTokenHandler);
 
-    const modalRefreshBtn = document.getElementById('modalRefreshJwtBtn');
-    if (modalRefreshBtn) modalRefreshBtn.addEventListener('click', refreshTokenHandler);
-
     // Clear Token Action
     const clearTokenHandler = () => {
       api.setToken(null);
@@ -236,15 +229,58 @@ const auth = {
     const clearBtn = document.getElementById('clearJwtBtn');
     if (clearBtn) clearBtn.addEventListener('click', clearTokenHandler);
 
-    const modalClearBtn = document.getElementById('modalClearJwtBtn');
-    if (modalClearBtn) modalClearBtn.addEventListener('click', clearTokenHandler);
+    // Logout Action
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', async () => {
+        try {
+          await api.post('/auth/logout').catch(() => {});
+        } finally {
+          api.setToken(null);
+          app.currentUser = null;
+          app.updateAuthUI(null);
+          this.renderJwtInspector();
+          app.showToast('Signed out of DesiPay. Protected APIs now locked.', 'info');
+        }
+      });
+    }
 
-    // Inject / Test Custom Token
+    // Inject / Test Custom Token Modal
     const injectBtn = document.getElementById('injectJwtBtn');
-    if (injectBtn) {
+    const jwtModal = document.getElementById('jwtCockpitModal');
+    const closeJwtModalBtn = document.getElementById('closeJwtCockpitBtn');
+
+    if (injectBtn && jwtModal) {
       injectBtn.addEventListener('click', () => {
-        document.getElementById('jwtCockpitModal').style.display = 'flex';
-        document.getElementById('customJwtInput').focus();
+        jwtModal.style.display = 'flex';
+        const input = document.getElementById('customJwtInput');
+        if (input) {
+          input.value = api.getToken() || '';
+          input.focus();
+        }
+      });
+    }
+
+    if (closeJwtModalBtn && jwtModal) {
+      closeJwtModalBtn.addEventListener('click', () => {
+        jwtModal.style.display = 'none';
+      });
+    }
+
+    // Paste from clipboard button
+    const pasteBtn = document.getElementById('pasteClipboardJwtBtn');
+    if (pasteBtn) {
+      pasteBtn.addEventListener('click', async () => {
+        try {
+          const text = await navigator.clipboard.readText();
+          const input = document.getElementById('customJwtInput');
+          if (input) {
+            input.value = text.trim();
+            app.showToast('Pasted token from clipboard!', 'info');
+          }
+        } catch {
+          app.showToast('Clipboard access denied. Please paste directly into text box.', 'error');
+        }
       });
     }
 
@@ -252,7 +288,7 @@ const auth = {
     if (applyCustomBtn) {
       applyCustomBtn.addEventListener('click', async () => {
         const input = document.getElementById('customJwtInput');
-        const customToken = input.value.trim();
+        const customToken = input?.value?.trim();
         if (!customToken) {
           app.showToast('Please paste a JWT token to test', 'error');
           return;
@@ -265,7 +301,7 @@ const auth = {
           if (res?.data?.user) {
             app.onLogin(res.data.user);
             app.showToast(`Custom token validated! Signed in as ${res.data.user.fullName}`, 'success');
-            document.getElementById('jwtCockpitModal').style.display = 'none';
+            if (jwtModal) jwtModal.style.display = 'none';
           }
         } catch (err) {
           app.showToast(`Custom token rejected: ${err.message}`, 'error');

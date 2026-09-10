@@ -282,10 +282,49 @@
           <div class="mdc-details">
             <h3>देसीपे 4G स्मार्ट साउंडबॉक्स</h3>
             <p>जब भी कोई ग्राहक फोनपे, गूगलपे या पेटीएम से भुगतान करेगा, साउंडबॉक्स तुरंत आवाज में बताएगा।</p>
+
+            <!-- Interactive Soundbox Simulator Controls -->
+            <div class="soundbox-quick-controls" style="background:rgba(0,0,0,0.3);padding:0.75rem;border-radius:10px;margin:0.8rem 0;border:1px solid var(--border-color)">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+                <span style="font-size:0.75rem;color:var(--text-muted)">Amount:</span>
+                <div class="sqc-chips" style="display:flex;gap:0.3rem">
+                  <button type="button" class="btn btn-xs sb-amount-chip active" data-amt="150">₹150</button>
+                  <button type="button" class="btn btn-xs sb-amount-chip" data-amt="250">₹250</button>
+                  <button type="button" class="btn btn-xs sb-amount-chip" data-amt="500">₹500</button>
+                  <button type="button" class="btn btn-xs sb-amount-chip" data-amt="1200">₹1,200</button>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.5rem">
+                <span style="font-size:0.75rem;color:var(--text-muted)">Language:</span>
+                <div class="sqc-chips" style="display:flex;gap:0.3rem">
+                  <button type="button" class="btn btn-xs sb-lang-chip active" data-lang="hi-IN">🇮🇳 हिंदी</button>
+                  <button type="button" class="btn btn-xs sb-lang-chip" data-lang="en-IN">🇬🇧 English</button>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between">
+                <span style="font-size:0.75rem;color:var(--text-muted)">Volume: <strong id="soundboxVolLabel" style="color:var(--accent-cyan)">85%</strong></span>
+                <div style="display:flex;gap:0.3rem">
+                  <button type="button" class="btn btn-xs btn-outline" id="btnSbVolDown">🔈 −</button>
+                  <button type="button" class="btn btn-xs btn-outline" id="btnSbVolUp">🔊 +</button>
+                </div>
+              </div>
+            </div>
+
             <button class="btn btn-primary btn-full btn-voice-demo" id="testSoundboxVoiceBtn">
               <span>🔊</span>
-              <span>Test Announcement: "₹150 प्राप्त हुए!"</span>
+              <span id="testVoiceBtnText">Play Audio: "देसीपे पर ₹150 प्राप्त हुए!"</span>
             </button>
+          </div>
+        </div>
+
+        <!-- Recent Soundbox Announcements History -->
+        <div class="m-device-card" style="margin-top:1rem">
+          <div class="tab-header-bar" style="margin-bottom:0.5rem">
+            <h4 style="font-size:0.85rem;color:#ffffff;margin:0">🔊 Live Broadcast History</h4>
+            <button type="button" class="btn btn-xs btn-outline" id="refreshVoiceHistoryBtn">🔄 Refresh</button>
+          </div>
+          <div id="soundboxHistoryList" style="display:flex;flex-direction:column;gap:0.4rem">
+            <div class="empty-state" style="padding:0.8rem">Tap Play Audio to trigger speech log</div>
           </div>
         </div>
 
@@ -360,6 +399,70 @@
               <span class="chip-badge role-b2b">Wholesale</span>
             </button>
           </div>
+        </div>
+
+        <!-- Collapsible Custom Credentials Login / Register Drawer -->
+        <button type="button" class="btn btn-outline btn-full" id="toggleCustomAuthBtn" style="margin-top:0.75rem;font-size:0.8rem">
+          <span>📝</span>
+          <span>Manual Email & Password Sign In / Sign Up ▾</span>
+        </button>
+
+        <div id="customAuthContainer" style="display:none;background:rgba(18,26,47,0.85);border:1px solid var(--border-color);border-radius:12px;padding:1rem;margin-top:0.75rem">
+          <div class="auth-tabs" style="display:flex;gap:0.5rem;margin-bottom:1rem">
+            <button type="button" class="btn btn-xs auth-tab active" data-tab="login" style="flex:1">Sign In</button>
+            <button type="button" class="btn btn-xs auth-tab" data-tab="register" style="flex:1">Create Account</button>
+          </div>
+
+          <!-- Login Form -->
+          <form id="loginForm">
+            <div class="form-group" style="margin-bottom:0.75rem">
+              <label for="loginEmail" style="font-size:0.75rem">Email Address</label>
+              <input type="email" id="loginEmail" placeholder="customer.live@desipay.com" value="customer.live@desipay.com" required style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+            </div>
+            <div class="form-group" style="margin-bottom:0.75rem;position:relative">
+              <label for="loginPassword" style="font-size:0.75rem">Password</label>
+              <div style="display:flex;gap:0.3rem">
+                <input type="password" id="loginPassword" placeholder="Password@123" value="Password@123" required style="flex:1;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+                <button type="button" class="btn btn-sm btn-outline" id="togglePasswordBtn">👁️</button>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Sign In with RS256 JWT</button>
+            <div class="form-error" id="loginError" style="color:var(--danger);font-size:0.75rem;margin-top:0.4rem"></div>
+          </form>
+
+          <!-- Register Form -->
+          <form id="registerForm" style="display:none">
+            <div class="form-group" style="margin-bottom:0.6rem">
+              <label for="regName" style="font-size:0.75rem">Full Name</label>
+              <input type="text" id="regName" placeholder="Aakash Kumar" required style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+            </div>
+            <div class="form-group" style="margin-bottom:0.6rem">
+              <label for="regEmail" style="font-size:0.75rem">Email</label>
+              <input type="email" id="regEmail" placeholder="aakash@desipay.com" required style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+            </div>
+            <div class="form-group" style="margin-bottom:0.6rem">
+              <label for="regPhone" style="font-size:0.75rem">Phone (+91)</label>
+              <input type="tel" id="regPhone" placeholder="+919800000099" required style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+            </div>
+            <div class="form-group" style="margin-bottom:0.6rem">
+              <label for="regRole" style="font-size:0.75rem">Account Role</label>
+              <select id="regRole" style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+                <option value="CUSTOMER">Campus Student (Customer)</option>
+                <option value="SHOPKEEPER">Dukandaar Uncle (Shopkeeper)</option>
+                <option value="B2B_CUSTOMER">B2B Wholesale Merchant</option>
+              </select>
+            </div>
+            <div class="form-group" style="margin-bottom:0.6rem">
+              <label for="regPassword" style="font-size:0.75rem">Password</label>
+              <input type="password" id="regPassword" placeholder="Min 8 chars, 1 uppercase, 1 special" required style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+            </div>
+            <div class="form-group" style="margin-bottom:0.75rem">
+              <label for="regConfirm" style="font-size:0.75rem">Confirm Password</label>
+              <input type="password" id="regConfirm" placeholder="Re-type password" required style="width:100%;padding:0.5rem;background:rgba(0,0,0,0.3);border:1px solid var(--border-color);border-radius:6px;color:#fff;box-sizing:border-box">
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">Register Account</button>
+            <div class="form-error" id="registerError" style="color:var(--danger);font-size:0.75rem;margin-top:0.4rem"></div>
+          </form>
         </div>
 
         <!-- Live RS256 JWT Cockpit Card -->
@@ -571,6 +674,12 @@
           </div>
           <div class="form-group">
             <label for="payDesc">Description / Note</label>
+            <div class="quick-desc-chips" style="display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.4rem">
+              <button type="button" class="btn btn-xs btn-outline pay-desc-tag" data-desc="Hostel tuck shop snack payment">🍿 Snacks</button>
+              <button type="button" class="btn btn-xs btn-outline pay-desc-tag" data-desc="Campus canteen lunch & cold drink">🍜 Canteen</button>
+              <button type="button" class="btn btn-xs btn-outline pay-desc-tag" data-desc="Morning dairy, bread & eggs">🥛 Dairy</button>
+              <button type="button" class="btn btn-xs btn-outline pay-desc-tag" data-desc="Spiral notebook & blue ball pens">📚 Stationery</button>
+            </div>
             <input type="text" id="payDesc" placeholder="Hostel tuck shop snack payment">
           </div>
           <button type="submit" class="btn btn-primary btn-full">Generate Razorpay Order</button>
@@ -589,18 +698,24 @@
         </div>
         <form id="createKhataForm" style="padding: 1rem 0">
           <div class="form-group">
-            <label for="khataCustomerId">Customer UUID / ID</label>
-            <input type="text" id="khataCustomerId" placeholder="e.g. 7c9e6679-7425-40de-944b-e07fc1f90ae7" required>
+            <label for="khataCustomerId">ग्राहक चुनें (Select Customer)</label>
+            <div class="quick-customer-chips" style="display:flex;gap:0.3rem;flex-wrap:wrap;margin-bottom:0.4rem">
+              <button type="button" class="btn btn-xs btn-customer-chip active" data-id="c276e6bf-42a6-4432-8f6c-d2e500ecb7c9" data-name="Rahul Verma (Hostel 4)">👤 Rahul Verma</button>
+              <button type="button" class="btn btn-xs btn-customer-chip" data-id="c276e6bf-42a6-4432-8f6c-d2e500ecb7c9" data-name="Aman Deep (Hostel 3)">👤 Aman Deep</button>
+              <button type="button" class="btn btn-xs btn-customer-chip" data-id="c276e6bf-42a6-4432-8f6c-d2e500ecb7c9" data-name="Priya Sharma (Hostel 2)">👤 Priya Sharma</button>
+              <button type="button" class="btn btn-xs btn-customer-chip" data-id="c276e6bf-42a6-4432-8f6c-d2e500ecb7c9" data-name="Vikram Singh (Canteen)">👤 Vikram Singh</button>
+            </div>
+            <input type="text" id="khataCustomerId" placeholder="Customer Name / UUID" value="c276e6bf-42a6-4432-8f6c-d2e500ecb7c9" required>
           </div>
           <div class="form-group">
             <label for="khataType">प्रकार (Entry Type)</label>
             <div class="entry-type-selector">
               <label class="type-option">
-                <input type="radio" name="khataTypeRadio" value="CREDIT" checked>
+                <input type="radio" name="khataTypeRadio" id="radioKhataCredit" value="CREDIT" checked>
                 <span class="type-pill type-credit">🔴 उधार दिया (Credit)</span>
               </label>
               <label class="type-option">
-                <input type="radio" name="khataTypeRadio" value="DEBIT">
+                <input type="radio" name="khataTypeRadio" id="radioKhataDebit" value="DEBIT">
                 <span class="type-pill type-debit">🟢 पैसा लिया (Debit)</span>
               </label>
             </div>
@@ -608,15 +723,46 @@
           </div>
           <div class="form-group">
             <label for="khataAmount">रुपये (₹ Amount)</label>
-            <input type="number" id="khataAmount" step="0.01" min="1" placeholder="180.00" required>
+            <div class="preset-chips" style="display:flex;gap:0.3rem;margin-bottom:0.4rem">
+              <button type="button" class="btn btn-xs khata-preset-chip" data-val="50">₹50</button>
+              <button type="button" class="btn btn-xs khata-preset-chip" data-val="100">₹100</button>
+              <button type="button" class="btn btn-xs khata-preset-chip" data-val="180">₹180</button>
+              <button type="button" class="btn btn-xs khata-preset-chip" data-val="350">₹350</button>
+              <button type="button" class="btn btn-xs khata-preset-chip" data-val="500">₹500</button>
+            </div>
+            <input type="number" id="khataAmount" step="0.01" min="1" placeholder="180.00" value="180" required>
           </div>
           <div class="form-group">
             <label for="khataDesc">सामान विवरण (Items Note)</label>
-            <input type="text" id="khataDesc" placeholder="2 Maggi, 1 Red Bull">
+            <input type="text" id="khataDesc" placeholder="2 Maggi, 1 Red Bull" value="2 Maggi, 1 Red Bull">
           </div>
           <button type="submit" class="btn btn-primary btn-full">खाते में लिखें (Commit to Ledger)</button>
           <div class="form-error" id="khataError"></div>
         </form>
+      </div>
+    </div>
+
+    <!-- Sheet 5: Custom JWT Inspector & Token Injection -->
+    <div class="bottom-sheet-overlay" id="jwtCockpitModal" style="display:none">
+      <div class="bottom-sheet">
+        <div class="bs-handle"></div>
+        <div class="bs-header">
+          <h3>🧪 Custom JWT Injection Cockpit</h3>
+          <button class="bs-close" id="closeJwtCockpitBtn">✕</button>
+        </div>
+        <div style="padding: 1rem 0">
+          <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:0.8rem">
+            Paste any RS256 JWT access token to test authorization, verify claims, or simulate expired tokens:
+          </p>
+          <div class="form-group">
+            <label for="customJwtInput">Bearer Token (RS256 JWT)</label>
+            <textarea id="customJwtInput" rows="4" style="width:100%;font-family:monospace;font-size:0.75rem;padding:0.6rem;background:rgba(0,0,0,0.5);border:1px solid var(--border-color);border-radius:8px;color:#fff;box-sizing:border-box" placeholder="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9..."></textarea>
+          </div>
+          <div style="display:flex;gap:0.5rem;margin-top:1rem">
+            <button type="button" class="btn btn-primary btn-full" id="applyCustomJwtBtn">Verify & Apply Token</button>
+            <button type="button" class="btn btn-outline" id="pasteClipboardJwtBtn" style="white-space:nowrap">📋 Paste</button>
+          </div>
+        </div>
       </div>
     </div>
 

@@ -15,6 +15,36 @@ const khata = {
       });
     }
 
+    // Customer Selection Chips
+    document.querySelectorAll('.btn-customer-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.btn-customer-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const custInput = document.getElementById('khataCustomerId');
+        if (custInput) custInput.value = chip.dataset.id;
+        const descInput = document.getElementById('khataDesc');
+        if (descInput) descInput.value = `Kirana items for ${chip.dataset.name}`;
+      });
+    });
+
+    // Khata Amount Preset Chips
+    document.querySelectorAll('.khata-preset-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.khata-preset-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        const amtInput = document.getElementById('khataAmount');
+        if (amtInput) amtInput.value = chip.dataset.val;
+      });
+    });
+
+    // Khata Entry Type Radio Toggle
+    document.querySelectorAll('input[name="khataTypeRadio"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const hiddenType = document.getElementById('khataType');
+        if (hiddenType) hiddenType.value = radio.value;
+      });
+    });
+
     const form = document.getElementById('createKhataForm');
     if (form) {
       form.addEventListener('submit', async (e) => {
@@ -24,7 +54,8 @@ const khata = {
 
         try {
           const customerId = document.getElementById('khataCustomerId')?.value.trim();
-          const entryType = document.getElementById('khataType')?.value || 'CREDIT';
+          const selectedRadio = document.querySelector('input[name="khataTypeRadio"]:checked');
+          const entryType = selectedRadio ? selectedRadio.value : (document.getElementById('khataType')?.value || 'CREDIT');
           const amount = parseFloat(document.getElementById('khataAmount')?.value || '0');
           const desc = document.getElementById('khataDesc')?.value || undefined;
 
@@ -59,5 +90,14 @@ const khata = {
     if (app.loadKhataTabData) {
       await app.loadKhataTabData();
     }
+  },
+
+  async settleDebtor(debtorName, amount) {
+    app.showToast(`Vasooli recorded: ₹${amount} received from ${debtorName}`, 'success');
+    if (app.speakSoundbox) app.speakSoundbox(amount);
+    setTimeout(() => {
+      if (app.loadKhataTabData) app.loadKhataTabData();
+      if (app.loadVyaparStats) app.loadVyaparStats();
+    }, 500);
   },
 };
